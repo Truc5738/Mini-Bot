@@ -1,0 +1,1984 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Bedrock Studio Pro // Cyber Edition v8.0</title>
+<script src="https://cdn.jsdelivr.net/npm/tailwindcss-cdn@3.4.10/tailwindcss.min.js"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: { extend: { colors: {
+      dark: { 950:'#030712',900:'#0b0f19',800:'#111827',700:'#1f2937' },
+      primary: { 500:'var(--primary-color,#8b5cf6)', 600:'var(--primary-dark,#7c3aed)', 400:'var(--primary-light,#a78bfa)' }
+    }}}
+  }
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+  :root{ --ui-scale: 1; --bubble-radius: 20px; --bubble-maxw: 90%; --bg-overlay-opacity: 0.85; --chat-font: 'Plus Jakarta Sans', sans-serif; --bubble-user-color: linear-gradient(135deg, var(--primary-dark,#7c3aed) 0%, var(--primary-color,#8b5cf6) 100%); --bubble-ai-color: rgba(11,15,25,.9); }
+  * { scrollbar-width: thin; }
+  html, body { overscroll-behavior: none; }
+  body { font-family: var(--chat-font); transition:background .3s,color .3s; overflow-x:hidden; font-size: calc(1em * var(--ui-scale)); }
+  #bg-layer { position:fixed; inset:0; z-index:-2; background-size:cover; background-position:center; background-repeat:no-repeat; transition:opacity .4s; }
+  #bg-overlay { position:fixed; inset:0; z-index:-1; pointer-events:none; }
+  body.dark #bg-overlay { background: rgba(3,7,18, var(--bg-overlay-opacity)); }
+  body:not(.dark) #bg-overlay { background: rgba(243,244,246, var(--bg-overlay-opacity)); }
+  .wallpaper-thumb { height:48px; border-radius:12px; cursor:pointer; border:2px solid transparent; background-size:cover; background-position:center; }
+  .wallpaper-thumb.active { border-color: var(--primary-color,#8b5cf6); }
+  .avatars-hidden .msg-row .w-5.h-5.rounded-full { display:none; }
+  .noanim .fade-in { animation:none !important; }
+  .font-mono { font-family:'JetBrains Mono',monospace; }
+  .density-compact .msg-pad { padding:.5rem .75rem !important; }
+  .density-compact .panel-pad { padding:.75rem !important; }
+
+  body.dark { background:#030712; color:#f9fafb; }
+  body.dark .glass-panel { background:rgba(11,15,25,.85); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,.08); box-shadow:0 25px 60px rgba(0,0,0,.7); }
+  body.dark .input-cyber { background:rgba(3,7,18,.9); border:1px solid rgba(255,255,255,.1); color:#f9fafb; }
+  body.dark .btn-sub { background:rgba(31,41,55,.6); border:1px solid rgba(255,255,255,.1); color:#cbd5e1; }
+  body.dark .bubble-ai-cyber { background:rgba(11,15,25,.9); color:#e2e8f0; border:1px solid var(--primary-border,rgba(139,92,246,.3)); }
+  body.dark ::-webkit-scrollbar-thumb { background:var(--primary-color,rgba(139,92,246,.35)); }
+
+  body:not(.dark) { background:#f3f4f6; color:#111827; }
+  body:not(.dark) .glass-panel { background:rgba(255,255,255,.85); backdrop-filter:blur(20px); border:1px solid rgba(0,0,0,.08); box-shadow:0 20px 40px rgba(0,0,0,.05); }
+  body:not(.dark) .input-cyber { background:rgba(249,250,251,.9); border:1px solid rgba(0,0,0,.1); color:#111827; }
+  body:not(.dark) .btn-sub { background:rgba(229,231,235,.8); border:1px solid rgba(0,0,0,.1); color:#374151; }
+  body:not(.dark) .bubble-ai-cyber { background:rgba(255,255,255,.9); color:#1f2937; border:1px solid var(--primary-border,rgba(139,92,246,.3)); }
+
+  .input-cyber:focus-within { border-color:var(--primary-color,#8b5cf6); box-shadow:0 0 25px var(--primary-shadow,rgba(139,92,246,.4)); }
+  .btn-cyber { position:relative; overflow:hidden; transition:all .3s cubic-bezier(.4,0,.2,1); background:linear-gradient(135deg,var(--primary-dark,#7c3aed) 0%,var(--primary-color,#8b5cf6) 50%,var(--primary-deep,#6d28d9) 100%); background-size:200% auto; color:#fff; box-shadow:0 4px 20px var(--primary-shadow,rgba(139,92,246,.4)); }
+  .btn-cyber:hover { background-position:right center; transform:translateY(-2px); box-shadow:0 8px 30px var(--primary-shadow-strong,rgba(139,92,246,.7)); }
+  .btn-cyber:active { transform:translateY(1px); scale:.98; }
+  .btn-cyber:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+  .btn-sub { transition:all .2s ease; position:relative; overflow:hidden; }
+  .btn-sub:hover { background:var(--primary-sub-bg,rgba(139,92,246,.2)); border-color:var(--primary-color,rgba(139,92,246,.5)); transform:translateY(-2px); box-shadow:0 5px 15px var(--primary-shadow,rgba(139,92,246,.2)); color:var(--primary-color,#8b5cf6); }
+  .btn-sub:active { transform:scale(.96); }
+  .custom-scrollbar::-webkit-scrollbar { width:5px; height:5px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background:transparent; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background:var(--primary-color,rgba(139,92,246,.3)); border-radius:10px; }
+  .bubble-user-cyber { background:var(--bubble-user-color); color:#fff; border-radius:var(--bubble-radius) var(--bubble-radius) 4px var(--bubble-radius); box-shadow:0 4px 15px var(--primary-shadow,rgba(139,92,246,.4)); border:1px solid rgba(255,255,255,.15); max-width:var(--bubble-maxw); }
+  body.dark .bubble-ai-cyber { background:var(--bubble-ai-color); }
+  .bubble-ai-cyber { border-radius:var(--bubble-radius) var(--bubble-radius) var(--bubble-radius) 4px; box-shadow:0 10px 30px rgba(0,0,0,.2); max-width:var(--bubble-maxw); }
+  .bubble-notail.bubble-user-cyber, .bubble-notail.bubble-ai-cyber { border-radius:var(--bubble-radius) !important; }
+  .msg-prose { line-height:1.55; overflow-wrap:break-word; word-break:break-word; }
+  .msg-prose p { margin:.35em 0; }
+  .msg-prose ul,.msg-prose ol { margin:.35em 0 .35em 1.2em; }
+  .msg-prose pre { position:relative; background:#00000055; border-radius:12px; padding:1.6em .9em .9em; margin:.5em 0; overflow-x:auto; }
+  .msg-prose code:not(pre code) { background:rgba(139,92,246,.18); padding:.1em .35em; border-radius:6px; font-size:.85em; }
+  .copy-code-btn { font-size:10px; padding:2px 8px; border-radius:8px; background:rgba(255,255,255,.1); white-space:nowrap; }
+  .copy-code-btn:hover { background:var(--primary-color,#8b5cf6); }
+  .typing-dot { width:6px; height:6px; border-radius:50%; background:var(--primary-color,#8b5cf6); animation:tdot 1.2s infinite ease-in-out; }
+  .typing-dot:nth-child(2){animation-delay:.2s} .typing-dot:nth-child(3){animation-delay:.4s}
+  @keyframes tdot { 0%,80%,100%{transform:scale(.6);opacity:.4} 40%{transform:scale(1);opacity:1} }
+  .msg-actions { opacity:0; transition:opacity .15s; }
+  .msg-row:hover .msg-actions { opacity:1; }
+  .fade-in { animation:fadeIn .25s ease; }
+  @keyframes fadeIn { from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+  .sidebar-collapsed { display:none !important; }
+  #particles-bg { position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.5; }
+  .kbd { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); border-radius:5px; padding:1px 6px; font-size:10px; }
+  .reaction-btn.active { color:var(--primary-color,#8b5cf6); }
+  .select-mode .msg-select-checkbox { display:inline-block !important; }
+  .select-mode .msg-row { cursor:pointer; }
+  .toast-item { animation:fadeIn .2s ease; }
+  #scroll-bottom-btn { transition:all .2s ease; }
+</style>
+</head>
+<body class="min-h-screen flex flex-col custom-scrollbar relative dark">
+<div id="bg-layer"></div>
+<div id="bg-overlay"></div>
+<canvas id="particles-bg"></canvas>
+
+<!-- TOAST STACK -->
+<div id="toast-stack" class="fixed bottom-6 right-6 z-[60] flex flex-col-reverse gap-2 items-end"></div>
+
+<!-- CONFIRM DIALOG -->
+<div id="confirm-modal" class="fixed inset-0 z-[70] hidden items-center justify-center bg-black/80 backdrop-blur-md p-4">
+  <div class="glass-panel w-full max-w-sm p-5 rounded-3xl space-y-4">
+    <p id="confirm-msg" class="text-sm font-medium"></p>
+    <div class="flex gap-2">
+      <button onclick="resolveConfirm(false)" class="btn-sub flex-1 py-2.5 rounded-xl text-xs font-bold">Hủy</button>
+      <button onclick="resolveConfirm(true)" class="btn-cyber flex-1 py-2.5 rounded-xl text-xs font-bold">Xác nhận</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div id="settings-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 hidden">
+  <div class="glass-panel w-full max-w-lg p-6 rounded-3xl flex flex-col space-y-4 max-h-[92vh] overflow-y-auto custom-scrollbar">
+    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 rounded-xl bg-primary-600 flex items-center justify-center text-white text-xs shadow-lg shadow-primary-500/40"><i class="fa-solid fa-gears"></i></div>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-primary-400">Cài Đặt Studio v8.0</h3>
+      </div>
+      <button onclick="toggleModal('settings-modal')" class="w-8 h-8 rounded-xl btn-sub flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="flex flex-col space-y-3 text-xs font-mono">
+      <div class="flex flex-col space-y-2 pb-3 border-b border-white/10">
+        <span class="text-primary-400 font-bold uppercase">🎨 Màu Giao Diện</span>
+        <div class="grid grid-cols-6 gap-2">
+          <button onclick="setCustomTheme('#8b5cf6')" class="h-8 rounded-xl bg-purple-500 border border-white/20 hover:scale-105 transition-transform"></button>
+          <button onclick="setCustomTheme('#3b82f6')" class="h-8 rounded-xl bg-blue-500 border border-white/20 hover:scale-105 transition-transform"></button>
+          <button onclick="setCustomTheme('#10b981')" class="h-8 rounded-xl bg-emerald-500 border border-white/20 hover:scale-105 transition-transform"></button>
+          <button onclick="setCustomTheme('#f43f5e')" class="h-8 rounded-xl bg-rose-500 border border-white/20 hover:scale-105 transition-transform"></button>
+          <button onclick="setCustomTheme('#f59e0b')" class="h-8 rounded-xl bg-amber-500 border border-white/20 hover:scale-105 transition-transform"></button>
+          <button onclick="setCustomTheme('#06b6d4')" class="h-8 rounded-xl bg-cyan-500 border border-white/20 hover:scale-105 transition-transform"></button>
+        </div>
+        <input type="color" id="custom-color-picker" onchange="setCustomTheme(this.value)" class="w-full h-8 rounded-xl bg-transparent cursor-pointer">
+      </div>
+
+      <div class="flex flex-col space-y-2 pb-3 border-b border-white/10">
+        <span class="text-primary-400 font-bold uppercase">🖼️ Hình Nền Giao Diện</span>
+        <div class="grid grid-cols-2 gap-2">
+          <label class="btn-sub py-2 rounded-xl text-[11px] text-center cursor-pointer"><i class="fa-solid fa-upload"></i> Tải Ảnh Nền<input type="file" accept="image/*" class="hidden" onchange="uploadBackground(event)"></label>
+          <button onclick="clearBackground()" class="btn-sub py-2 rounded-xl text-[11px] text-rose-400"><i class="fa-solid fa-ban"></i> Xóa Hình Nền</button>
+        </div>
+        <div id="wallpaper-gallery" class="grid grid-cols-4 gap-2"></div>
+        <div class="flex flex-col space-y-1">
+          <div class="flex justify-between text-[10px] opacity-70"><span>Độ mờ lớp phủ (giữ chữ dễ đọc)</span><span id="bg-opacity-val">85%</span></div>
+          <input type="range" id="bg-opacity-slider" min="0" max="1" step="0.05" value="0.85" oninput="setBgOpacity(this.value)" class="w-full accent-primary-500">
+        </div>
+      </div>
+
+      <div class="flex flex-col space-y-2 pb-3 border-b border-white/10">
+        <span class="text-primary-400 font-bold uppercase">💬 Tùy Chỉnh Bong Bóng Chat</span>
+        <div class="grid grid-cols-2 gap-2 text-[10px]">
+          <div class="flex flex-col gap-1"><span class="opacity-70">Màu bong bóng bạn</span><input type="color" id="bubble-user-color-picker" value="#8b5cf6" onchange="setBubbleColor('user', this.value)" class="w-full h-8 rounded-xl bg-transparent cursor-pointer"></div>
+          <div class="flex flex-col gap-1"><span class="opacity-70">Màu bong bóng AI</span><input type="color" id="bubble-ai-color-picker" value="#0b0f19" onchange="setBubbleColor('ai', this.value)" class="w-full h-8 rounded-xl bg-transparent cursor-pointer"></div>
+        </div>
+        <div class="flex flex-col space-y-1">
+          <div class="flex justify-between text-[10px] opacity-70"><span>Độ bo góc bong bóng</span><span id="bubble-radius-val">20px</span></div>
+          <input type="range" id="bubble-radius-slider" min="0" max="32" step="2" value="20" oninput="setBubbleRadius(this.value)" class="w-full accent-primary-500">
+        </div>
+        <div class="flex flex-col space-y-1">
+          <div class="flex justify-between text-[10px] opacity-70"><span>Độ rộng tối đa bong bóng</span><span id="bubble-width-val">90%</span></div>
+          <input type="range" id="bubble-width-slider" min="50" max="100" step="5" value="90" oninput="setBubbleWidth(this.value)" class="w-full accent-primary-500">
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] opacity-80">Đuôi bong bóng (bo góc nhọn)</span>
+          <button onclick="toggleBubbleTail()" id="bubble-tail-btn" class="btn-sub px-3 py-1.5 rounded-xl text-[11px]">Có</button>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] opacity-80">Phông chữ khung chat</span>
+          <select id="font-family-select" onchange="setChatFont(this.value)" class="input-cyber rounded-xl px-2 py-1.5 text-[11px] font-mono">
+            <option value="'Plus Jakarta Sans',sans-serif">Plus Jakarta Sans</option>
+            <option value="'JetBrains Mono',monospace">JetBrains Mono</option>
+            <option value="Georgia,serif">Georgia</option>
+            <option value="'Courier New',monospace">Courier New</option>
+            <option value="Verdana,sans-serif">Verdana</option>
+          </select>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] opacity-80">Hiển thị Avatar</span>
+          <button onclick="toggleAvatars()" id="avatars-toggle-btn" class="btn-sub px-3 py-1.5 rounded-xl text-[11px]">Hiện</button>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] opacity-80">Hiệu ứng xuất hiện tin nhắn</span>
+          <button onclick="toggleMsgAnim()" id="msg-anim-toggle-btn" class="btn-sub px-3 py-1.5 rounded-xl text-[11px]">Bật</button>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] opacity-80">Định dạng giờ</span>
+          <button onclick="toggleTimeFormat()" id="time-format-btn" class="btn-sub px-3 py-1.5 rounded-xl text-[11px]">24h</button>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <span class="text-primary-400 font-bold">🌗 Chế Độ Sáng/Tối</span>
+        <button onclick="toggleDarkMode()" id="dark-toggle-btn" class="btn-sub px-3 py-1.5 rounded-xl text-[11px]">Tối</button>
+      </div>
+
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <span class="text-primary-400 font-bold">📐 Mật Độ Hiển Thị</span>
+        <button onclick="toggleDensity()" id="density-toggle-btn" class="btn-sub px-3 py-1.5 rounded-xl text-[11px]">Thoải mái</button>
+      </div>
+
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <span class="text-primary-400 font-bold">🔠 Cỡ Chữ</span>
+        <div class="flex items-center gap-2">
+          <button onclick="adjustFontScale(-0.05)" class="btn-sub w-7 h-7 rounded-lg text-xs">-</button>
+          <span id="font-scale-display" class="text-[11px] w-10 text-center">100%</span>
+          <button onclick="adjustFontScale(0.05)" class="btn-sub w-7 h-7 rounded-lg text-xs">+</button>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <span class="text-primary-400 font-bold">🔊 Âm Thanh Thông Báo</span>
+        <button onclick="toggleSound()" id="sound-toggle-btn" class="btn-sub px-3 py-1.5 rounded-xl text-[11px]">Bật</button>
+      </div>
+
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <span class="text-primary-400 font-bold">⬇️ Tự Động Cuộn Xuống Cuối</span>
+        <button onclick="toggleAutoScroll()" id="autoscroll-toggle-btn" class="btn-sub px-3 py-1.5 rounded-xl text-[11px]">Bật</button>
+      </div>
+
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <span class="text-primary-400 font-bold">🌊 Hiệu Ứng Nền Particles</span>
+        <button onclick="toggleParticles()" id="particles-toggle-btn" class="btn-sub px-3 py-1.5 rounded-xl text-[11px]">Bật</button>
+      </div>
+
+      <div class="flex flex-col space-y-1 pb-3 border-b border-white/10">
+        <span class="text-primary-400 font-bold">Custom System Prompt Gốc</span>
+        <textarea id="global-sys-prompt" class="input-cyber p-2.5 rounded-xl text-[11px] h-16 font-mono">Bạn là trợ lý AI thông minh, cực kỳ chuẩn xác và sắc bén.</textarea>
+      </div>
+
+      <div class="flex flex-col space-y-2 pb-3 border-b border-white/10">
+        <span class="text-primary-400 font-bold">💾 Dữ Liệu</span>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="exportAllData()" class="btn-sub py-2 rounded-xl text-[11px]"><i class="fa-solid fa-file-export"></i> Xuất Backup</button>
+          <label class="btn-sub py-2 rounded-xl text-[11px] text-center cursor-pointer"><i class="fa-solid fa-file-import"></i> Nhập Backup<input type="file" accept=".json" class="hidden" onchange="importAllData(event)"></label>
+          <button onclick="exportCurrentChat('txt')" class="btn-sub py-2 rounded-xl text-[11px]"><i class="fa-solid fa-file-lines"></i> Xuất Chat .txt</button>
+          <button onclick="confirmReset()" class="btn-sub py-2 rounded-xl text-[11px] text-rose-400"><i class="fa-solid fa-trash"></i> Xóa Toàn Bộ</button>
+        </div>
+      </div>
+
+      <div class="flex flex-col space-y-1 text-[10px] opacity-70">
+        <span class="text-primary-400 font-bold text-[11px]">⌨️ Phím Tắt</span>
+        <div><span class="kbd">Ctrl+K</span> Chat mới &nbsp; <span class="kbd">Ctrl+F</span> Tìm phiên &nbsp; <span class="kbd">Ctrl+/</span> Cài đặt &nbsp; <span class="kbd">Esc</span> Đóng popup</div>
+      </div>
+    </div>
+    <button onclick="toggleModal('settings-modal'); showToast('Đã lưu thiết lập!','success');" class="btn-cyber w-full font-bold text-xs py-3 rounded-2xl">Đóng & Lưu</button>
+  </div>
+</div>
+
+<!-- SHOP MODAL -->
+<div id="shop-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 hidden">
+  <div class="glass-panel w-full max-w-lg p-6 rounded-3xl flex flex-col space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs border border-amber-500/40"><i class="fa-solid fa-store"></i></div>
+        <div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-amber-400">Cửa Hàng Nâng Cấp Bot</h3>
+          <p class="text-[10px] opacity-70">Dùng Coin đổi tính năng AI nâng cao</p>
+        </div>
+      </div>
+      <button onclick="toggleModal('shop-modal')" class="w-8 h-8 rounded-xl btn-sub flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="flex items-center justify-between p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs font-mono">
+      <span>Ví Coin của bạn:</span>
+      <span id="shop-coin-balance" class="text-amber-400 font-bold text-sm">0 Coins</span>
+    </div>
+    <div id="shop-upgrade-list" class="flex flex-col space-y-3 text-xs font-mono"></div>
+
+    <div class="pt-2 border-t border-white/10">
+      <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">🏆 Thành Tựu</span>
+      <div id="achievements-list" class="grid grid-cols-4 gap-2 pt-2"></div>
+    </div>
+
+    <div class="pt-3 border-t border-white/10 flex flex-col space-y-3">
+      <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400">💰 Nhiều Cách Kiếm Thêm Coin</span>
+
+      <!-- ĐIỂM DANH STREAK -->
+      <div class="p-3 rounded-2xl bg-white/5 border border-white/10 space-y-2">
+        <div class="flex items-center justify-between text-[11px]">
+          <span class="font-bold">📅 Điểm Danh Hằng Ngày</span>
+          <span id="streak-count-label" class="text-amber-400">Chuỗi: 0 ngày</span>
+        </div>
+        <div id="streak-days-bar" class="grid grid-cols-7 gap-1"></div>
+        <button onclick="claimDailyBonus()" id="daily-bonus-btn" class="btn-cyber w-full font-bold text-xs py-2.5 rounded-xl"><i class="fa-solid fa-gift"></i> Điểm Danh Nhận Coin</button>
+      </div>
+
+      <!-- VƯỢT LINK -->
+      <div class="p-3 rounded-2xl bg-white/5 border border-white/10 space-y-2">
+        <div class="flex items-center justify-between text-[11px]">
+          <span class="font-bold">🔗 Vượt Link Nhận Coin</span>
+          <span id="link-task-remaining" class="text-cyan-400">3 lượt/ngày</span>
+        </div>
+        <p class="text-[10px] opacity-60">Mở link, đợi đếm ngược rồi bấm xác nhận để nhận +40 Coin. Mô phỏng đơn giản, không xác minh thật sự lượt xem.</p>
+        <button onclick="startLinkTask()" id="link-task-btn" class="btn-sub w-full font-bold text-xs py-2.5 rounded-xl"><i class="fa-solid fa-arrow-up-right-from-square"></i> Vượt Link Ngay</button>
+      </div>
+
+      <!-- NHẬP MÃ -->
+      <div class="p-3 rounded-2xl bg-white/5 border border-white/10 space-y-2">
+        <span class="font-bold text-[11px]">🎟️ Nhập Mã Quà Tặng</span>
+        <div class="flex gap-1.5">
+          <input id="redeem-code-input" placeholder="Nhập mã (VD: WELCOME100)" class="input-cyber flex-1 rounded-xl px-3 py-2 text-[11px] font-mono focus:outline-none uppercase">
+          <button onclick="redeemCode()" class="btn-cyber px-4 rounded-xl text-xs font-bold">Đổi Mã</button>
+        </div>
+      </div>
+    </div>
+
+    <button onclick="toggleModal('shop-modal')" class="btn-sub w-full font-bold text-xs py-3 rounded-2xl">Đóng Cửa Hàng</button>
+  </div>
+</div>
+
+<!-- SEARCH MODAL -->
+<div id="search-modal" class="fixed inset-0 z-50 hidden items-start justify-center bg-black/85 backdrop-blur-md p-4 pt-24">
+  <div class="glass-panel w-full max-w-lg p-4 rounded-3xl space-y-3">
+    <input id="global-search-input" oninput="renderSearchResults()" placeholder="Tìm phiên chat hoặc nội dung tin nhắn..." class="input-cyber w-full rounded-2xl px-4 py-3 text-xs font-mono focus:outline-none" autofocus>
+    <div id="search-results" class="max-h-80 overflow-y-auto custom-scrollbar space-y-1.5"></div>
+  </div>
+</div>
+
+<!-- COMMAND PALETTE -->
+<div id="command-palette-modal" class="fixed inset-0 z-50 hidden items-start justify-center bg-black/85 backdrop-blur-md p-4 pt-24">
+  <div class="glass-panel w-full max-w-lg p-4 rounded-3xl space-y-3">
+    <input id="command-palette-input" oninput="renderCommandPalette()" placeholder="Gõ để tìm lệnh nhanh... (vd: đổi màu, xuất chat, chạy code)" class="input-cyber w-full rounded-2xl px-4 py-3 text-xs font-mono focus:outline-none" autofocus>
+    <div id="command-palette-results" class="max-h-80 overflow-y-auto custom-scrollbar space-y-1"></div>
+  </div>
+</div>
+
+<!-- EMOJI PICKER -->
+<div id="emoji-picker" class="hidden fixed z-[65] glass-panel p-2.5 rounded-2xl grid grid-cols-8 gap-1 max-w-[280px]"></div>
+
+<!-- BOOKMARKS PANEL -->
+<div id="bookmarks-modal" class="fixed inset-0 z-50 hidden items-start justify-center bg-black/85 backdrop-blur-md p-4 pt-24">
+  <div class="glass-panel w-full max-w-lg p-4 rounded-3xl space-y-3">
+    <div class="flex items-center justify-between">
+      <span class="text-xs font-bold uppercase tracking-wider text-amber-400"><i class="fa-solid fa-bookmark"></i> Tin Nhắn Đã Đánh Dấu</span>
+      <button onclick="toggleModal('bookmarks-modal',false)" class="w-7 h-7 rounded-xl btn-sub flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="bookmarks-list" class="max-h-80 overflow-y-auto custom-scrollbar space-y-1.5"></div>
+  </div>
+</div>
+
+<!-- MUSIC PLAYER FLOATING BUTTON -->
+<button id="music-fab" onclick="toggleMusicPanel()" class="fixed bottom-5 left-5 z-40 w-12 h-12 rounded-full btn-cyber flex items-center justify-center shadow-2xl" title="Trình phát nhạc"><i class="fa-solid fa-music"></i></button>
+
+<!-- MUSIC PLAYER PANEL -->
+<div id="music-panel" class="hidden fixed bottom-5 left-5 z-40 w-[92vw] max-w-sm glass-panel rounded-3xl p-4 flex flex-col space-y-3 max-h-[80vh]">
+  <div class="flex items-center justify-between border-b border-white/10 pb-2.5">
+    <div class="flex items-center space-x-2">
+      <div class="w-7 h-7 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs border border-rose-500/40"><i class="fa-solid fa-music"></i></div>
+      <span class="text-xs font-bold uppercase tracking-wider text-rose-400">Trình Phát Nhạc</span>
+    </div>
+    <button onclick="toggleMusicPanel()" class="w-7 h-7 rounded-xl btn-sub flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+
+  <div class="flex gap-1.5">
+    <input id="music-url-input" placeholder="Dán link YouTube hoặc Spotify..." class="input-cyber flex-1 rounded-xl px-3 py-2 text-[11px] font-mono focus:outline-none">
+    <button onclick="playMusicFromInput()" class="btn-cyber px-3 rounded-xl text-xs"><i class="fa-solid fa-play"></i></button>
+  </div>
+
+  <div id="music-embed-container" class="rounded-2xl overflow-hidden bg-black/30 border border-white/10 min-h-[80px] flex items-center justify-center text-[11px] opacity-50 font-mono">
+    Chưa có bài hát nào đang phát
+  </div>
+
+  <div class="flex items-center justify-between">
+    <span class="text-[10px] font-bold uppercase tracking-wider opacity-60">🎵 Danh Sách Đã Lưu</span>
+    <button onclick="saveMusicToPlaylist()" class="btn-sub px-2.5 py-1 rounded-lg text-[10px]"><i class="fa-solid fa-plus"></i> Lưu bài hiện tại</button>
+  </div>
+  <div id="music-playlist" class="flex flex-col space-y-1.5 max-h-40 overflow-y-auto custom-scrollbar"></div>
+</div>
+
+<!-- HEADER -->
+<header class="glass-panel border-x-0 border-t-0 px-3 sm:px-6 py-3 sticky top-0 z-40 flex items-center justify-between shrink-0">
+  <div class="flex items-center space-x-2.5">
+    <button onclick="toggleSidebar()" class="lg:hidden btn-sub w-8 h-8 rounded-xl flex items-center justify-center"><i class="fa-solid fa-bars"></i></button>
+    <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-primary-600 to-indigo-400 flex items-center justify-center text-white text-xs shadow-lg shadow-primary-500/40"><i class="fa-solid fa-cube"></i></div>
+    <div>
+      <h1 class="font-extrabold text-xs sm:text-sm tracking-tight">Bedrock Studio</h1>
+      <p id="session-stopwatch" class="text-[9px] text-primary-400 font-mono uppercase">v8.0 // 00:00</p>
+    </div>
+  </div>
+  <div class="flex items-center space-x-1.5 sm:space-x-2">
+    <button onclick="toggleModal('search-modal'); document.getElementById('global-search-input').focus();" class="btn-sub w-8 h-8 rounded-xl hidden sm:flex items-center justify-center" title="Tìm kiếm (Ctrl+F)"><i class="fa-solid fa-magnifying-glass"></i></button>
+    <button onclick="openBookmarksPanel()" class="btn-sub w-8 h-8 rounded-xl flex items-center justify-center text-amber-400" title="Tin nhắn đã đánh dấu"><i class="fa-solid fa-bookmark"></i></button>
+    <button onclick="toggleModal('command-palette-modal',true); document.getElementById('command-palette-input').focus(); renderCommandPalette();" class="btn-sub w-8 h-8 rounded-xl hidden sm:flex items-center justify-center" title="Bảng lệnh nhanh (Ctrl+P)"><i class="fa-solid fa-terminal"></i></button>
+    <button onclick="toggleModal('shop-modal'); renderShop();" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/30 text-xs font-mono font-bold hover:scale-105 transition-transform">
+      <i class="fa-solid fa-coins"></i><span id="user-coin-display">150</span><span class="hidden sm:inline">Coins</span>
+    </button>
+    <button onclick="toggleModal('settings-modal')" class="btn-sub px-3 py-2 rounded-xl text-xs text-primary-400 font-mono flex items-center space-x-1.5"><i class="fa-solid fa-gears"></i><span class="hidden sm:inline">Cài Đặt</span></button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="w-full max-w-7xl mx-auto p-3 sm:p-4 flex flex-col lg:grid lg:grid-cols-12 gap-4 flex-1">
+
+  <!-- SIDEBAR -->
+  <div id="sidebar" class="lg:col-span-4 flex-col space-y-4 flex">
+    <div class="glass-panel p-4 rounded-3xl flex flex-col space-y-3 panel-pad">
+      <button onclick="createNewChatSession();" class="btn-cyber w-full font-bold text-xs py-3 rounded-2xl flex items-center justify-center space-x-2"><i class="fa-solid fa-plus text-xs"></i><span>Tạo Đoạn Chat Mới (Ctrl+K)</span></button>
+      <div class="flex items-center justify-between px-1">
+        <span class="text-[10px] font-bold uppercase tracking-wider opacity-60">Danh Sách Phiên Chat</span>
+        <span id="session-count" class="text-[10px] opacity-50 font-mono">0</span>
+      </div>
+      <input id="session-filter-input" oninput="saveAndRenderChat()" placeholder="Lọc nhanh..." class="input-cyber rounded-xl px-3 py-1.5 text-[11px] font-mono focus:outline-none">
+      <div id="session-list" class="flex flex-col space-y-1.5 max-h-64 overflow-y-auto custom-scrollbar pr-1"></div>
+    </div>
+
+    <div class="glass-panel p-4 rounded-3xl flex flex-col space-y-2 font-mono panel-pad">
+      <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400"><i class="fa-solid fa-bolt"></i> Nâng Cấp Kích Hoạt</span>
+      <div id="active-buffs-list" class="flex flex-wrap gap-1.5 pt-1"></div>
+    </div>
+
+    <div class="glass-panel p-4 rounded-3xl flex flex-col space-y-3 panel-pad">
+      <span class="text-[10px] font-bold uppercase tracking-wider text-primary-400">Cấu Hình AI Engine</span>
+      <select id="api-provider" onchange="switchProvider()" class="w-full input-cyber rounded-2xl px-3.5 py-2.5 text-xs font-mono focus:outline-none cursor-pointer">
+        <option value="free" selected>0. ⭐ Miễn Phí (Không cần API Key)</option>
+        <option value="groq">1. Groq Cloud</option>
+        <option value="gemini">2. Google Gemini AI</option>
+        <option value="openai">3. OpenAI GPT-4o</option>
+        <option value="deepseek">4. DeepSeek V3</option>
+        <option value="anthropic">5. Anthropic Claude</option>
+        <option value="custom">6. Tùy Chỉnh (OpenAI-compatible)</option>
+      </select>
+      <div id="free-provider-note" class="text-[10px] text-emerald-400 font-mono bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 py-2">✅ Chế độ miễn phí: dùng ngay, không cần nhập API Key. Tốc độ/chất lượng có thể không ổn định do là dịch vụ công cộng.</div>
+      <input type="password" id="api-key-input" placeholder="Nhập khóa API..." class="input-cyber rounded-2xl px-3.5 py-2.5 text-xs focus:outline-none font-mono">
+      <input type="text" id="custom-endpoint-input" placeholder="Endpoint URL (chỉ cho Tùy Chỉnh)..." class="input-cyber rounded-2xl px-3.5 py-2.5 text-xs focus:outline-none font-mono hidden">
+      <select id="model-select" class="w-full input-cyber rounded-2xl px-3.5 py-2.5 text-xs font-mono focus:outline-none cursor-pointer"></select>
+
+      <div class="flex flex-col space-y-1">
+        <div class="flex justify-between text-[10px] opacity-70"><span>Temperature</span><span id="temp-val">0.7</span></div>
+        <input type="range" id="temp-slider" min="0" max="2" step="0.1" value="0.7" oninput="document.getElementById('temp-val').innerText=this.value" class="w-full accent-primary-500">
+      </div>
+      <div class="flex flex-col space-y-1">
+        <div class="flex justify-between text-[10px] opacity-70"><span>Max Tokens</span><span id="maxtok-val">1024</span></div>
+        <input type="range" id="maxtok-slider" min="128" max="8192" step="128" value="1024" oninput="document.getElementById('maxtok-val').innerText=this.value" class="w-full accent-primary-500">
+      </div>
+      <div class="flex flex-col space-y-1">
+        <div class="flex justify-between text-[10px] opacity-70"><span>Top-P</span><span id="topp-val">1.0</span></div>
+        <input type="range" id="topp-slider" min="0.1" max="1" step="0.05" value="1.0" oninput="document.getElementById('topp-val').innerText=this.value" class="w-full accent-primary-500">
+      </div>
+
+      <select id="persona-select" onchange="applyPersona()" class="w-full input-cyber rounded-2xl px-3.5 py-2.5 text-xs font-mono focus:outline-none cursor-pointer">
+        <option value="">-- Persona Mặc Định --</option>
+        <option value="coder">👨‍💻 Lập Trình Viên</option>
+        <option value="teacher">👩‍🏫 Giáo Viên Kiên Nhẫn</option>
+        <option value="writer">✍️ Nhà Văn Sáng Tạo</option>
+        <option value="analyst">📊 Chuyên Gia Phân Tích</option>
+        <option value="translator">🌐 Phiên Dịch Viên</option>
+      </select>
+
+      <div class="flex items-center gap-2">
+        <label class="flex items-center gap-1 text-[10px] opacity-80"><input type="checkbox" id="stream-toggle" checked> Streaming</label>
+        <label class="flex items-center gap-1 text-[10px] opacity-80"><input type="checkbox" id="json-mode-toggle"> JSON Mode</label>
+      </div>
+
+      <div class="flex flex-col space-y-1">
+        <span class="text-[10px] opacity-70">🌐 Ngôn ngữ trả lời bắt buộc</span>
+        <select id="force-lang-select" class="w-full input-cyber rounded-2xl px-3.5 py-2.5 text-xs font-mono focus:outline-none cursor-pointer">
+          <option value="">Tự động (theo người dùng)</option>
+          <option value="vi">Luôn trả lời Tiếng Việt</option>
+          <option value="en">Luôn trả lời English</option>
+        </select>
+      </div>
+
+      <label class="flex items-center gap-1.5 text-[10px] opacity-80"><input type="checkbox" id="cot-toggle"> 🧩 Giải thích từng bước suy luận (Chain-of-Thought)</label>
+      <label class="flex items-center gap-1.5 text-[10px] opacity-80"><input type="checkbox" id="fallback-toggle" checked> 🔄 Tự chuyển sang bản Miễn Phí nếu provider chính lỗi</label>
+
+      <div class="flex flex-col space-y-1">
+        <div class="flex justify-between text-[10px] opacity-70"><span>📏 Giới hạn ngữ cảnh gửi đi (số tin nhắn gần nhất)</span><span id="ctx-limit-val">20</span></div>
+        <input type="range" id="ctx-limit-slider" min="2" max="60" step="2" value="20" oninput="document.getElementById('ctx-limit-val').innerText=this.value" class="w-full accent-primary-500">
+      </div>
+
+      <div class="flex flex-col space-y-1">
+        <span class="text-[10px] opacity-70">📌 Ngữ cảnh cố định (đính kèm mọi tin nhắn của phiên này)</span>
+        <textarea id="pinned-context-input" oninput="savePinnedContext()" placeholder="VD: Dự án đang làm là app quản lý chi tiêu bằng React..." class="input-cyber rounded-xl px-3 py-2 text-[11px] font-mono h-14 resize-none focus:outline-none"></textarea>
+      </div>
+
+      <div class="flex flex-col space-y-1.5 pt-1 border-t border-white/10">
+        <span class="text-[10px] opacity-70 pt-2">💡 Prompt Nhanh Của Bạn</span>
+        <div class="flex gap-1.5">
+          <input id="custom-prompt-input" placeholder="Thêm prompt nhanh mới..." class="input-cyber flex-1 rounded-xl px-3 py-1.5 text-[11px] font-mono focus:outline-none">
+          <button onclick="addCustomQuickPrompt()" class="btn-sub px-3 rounded-xl text-xs"><i class="fa-solid fa-plus"></i></button>
+        </div>
+      </div>
+
+      <button onclick="saveApiConfig();" class="btn-cyber w-full font-bold text-xs py-3 rounded-2xl">Lưu Cấu Hình</button>
+    </div>
+
+    <div class="glass-panel p-4 rounded-3xl flex flex-col space-y-2 panel-pad">
+      <span class="text-[10px] font-bold uppercase tracking-wider text-primary-400">📈 Thống Kê Phiên</span>
+      <div id="usage-stats" class="text-[10px] font-mono opacity-80 space-y-1"></div>
+    </div>
+  </div>
+
+  <!-- CHAT AREA -->
+  <div class="lg:col-span-8 flex flex-col flex-1">
+    <div class="glass-panel p-3 sm:p-5 rounded-3xl flex flex-col flex-1 min-h-[550px] relative">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-3 shrink-0">
+        <span id="active-chat-title" class="text-xs font-mono font-bold text-primary-400 truncate">Phiên hiện tại</span>
+        <div class="flex items-center gap-1.5">
+          <button onclick="autoGenerateTitle()" class="btn-sub text-xs px-2.5 py-1.5 rounded-xl" title="AI tự đặt tên phiên"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+          <button onclick="copyWholeConversation()" class="btn-sub text-xs px-2.5 py-1.5 rounded-xl" title="Sao chép toàn bộ hội thoại"><i class="fa-solid fa-copy"></i></button>
+          <button onclick="toggleSelectMode()" id="select-mode-btn" class="btn-sub text-xs px-2.5 py-1.5 rounded-xl" title="Chọn nhiều tin nhắn"><i class="fa-regular fa-square-check"></i></button>
+          <button onclick="summarizeChat()" class="btn-sub text-xs px-2.5 py-1.5 rounded-xl" title="Tóm tắt hội thoại"><i class="fa-solid fa-compress"></i></button>
+          <button onclick="toggleFocusMode()" class="btn-sub text-xs px-2.5 py-1.5 rounded-xl hidden sm:inline-flex" title="Chế độ tập trung"><i class="fa-solid fa-expand"></i></button>
+          <button onclick="clearChat();" class="btn-sub text-xs text-rose-400 px-3 py-1.5 rounded-xl">Làm sạch</button>
+        </div>
+      </div>
+
+      <div id="quick-prompts" class="flex flex-wrap gap-1.5 mb-2 text-[10px] font-mono shrink-0"></div>
+      <div id="bulk-action-bar" class="hidden items-center justify-between gap-2 mb-2 px-3 py-2 rounded-xl bg-primary-600/15 border border-primary-500/30 text-[11px] font-mono shrink-0">
+        <span id="bulk-select-count">0 tin nhắn đã chọn</span>
+        <div class="flex items-center gap-1.5">
+          <button onclick="bulkCopySelected()" class="btn-sub px-2.5 py-1 rounded-lg"><i class="fa-solid fa-copy"></i> Sao chép</button>
+          <button onclick="bulkExportSelected()" class="btn-sub px-2.5 py-1 rounded-lg"><i class="fa-solid fa-file-export"></i> Xuất</button>
+          <button onclick="bulkDeleteSelected()" class="btn-sub px-2.5 py-1 rounded-lg text-rose-400"><i class="fa-solid fa-trash"></i> Xóa</button>
+        </div>
+      </div>
+
+      <div class="relative flex-1 min-h-[350px] max-h-[60vh] overflow-hidden">
+        <div id="chat-messages" class="absolute inset-0 overflow-y-auto custom-scrollbar space-y-4 pr-2 pb-2"></div>
+        <button id="scroll-bottom-btn" onclick="scrollChatBottom(true)" class="hidden absolute bottom-2 right-2 btn-cyber w-9 h-9 rounded-full items-center justify-center text-xs z-10"><i class="fa-solid fa-arrow-down"></i></button>
+      </div>
+
+      <div id="typing-indicator" class="hidden items-center space-x-1.5 px-4 py-2 shrink-0 relative z-10">
+        <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+        <button onclick="stopGeneration()" class="text-[10px] text-rose-400 ml-2 underline">Dừng tạo</button>
+      </div>
+
+      <div class="mt-2 flex flex-col input-cyber p-2 rounded-2xl relative z-10" id="drop-zone">
+        <div id="attached-files-preview" class="hidden flex-col gap-1 px-1 py-1.5 mb-1"></div>
+        <div class="flex items-center space-x-1.5 sm:space-x-2">
+          <label for="file-upload-input" class="btn-sub p-2.5 rounded-xl cursor-pointer text-xs flex items-center justify-center shrink-0" title="Tải lên tệp tin (hoặc kéo-thả)"><i class="fa-solid fa-paperclip text-primary-400"></i></label>
+          <input type="file" id="file-upload-input" class="hidden" multiple onchange="handleFileSelect(event)">
+          <button id="voice-btn" onclick="toggleVoiceInput()" class="btn-sub p-2.5 rounded-xl text-xs flex items-center justify-center shrink-0" title="Nhập bằng giọng nói"><i class="fa-solid fa-microphone text-primary-400"></i></button>
+          <button id="emoji-btn" onclick="toggleEmojiPicker(event)" class="btn-sub p-2.5 rounded-xl text-xs flex items-center justify-center shrink-0 hidden sm:flex" title="Chèn emoji"><i class="fa-regular fa-face-smile text-primary-400"></i></button>
+          <textarea id="chat-input" rows="1" placeholder="Nhập yêu cầu..." title="Enter để gửi, Shift+Enter xuống dòng" class="flex-1 bg-transparent px-2 py-2 text-xs font-mono focus:outline-none min-w-0 resize-none max-h-32 custom-scrollbar leading-tight" style="height:36px;" oninput="autoResize(this); saveDraft();"></textarea>
+          <button onclick="sendChatMessage();" id="send-btn" class="btn-cyber font-bold text-xs px-4 py-2.5 rounded-xl flex items-center space-x-1 shrink-0"><span class="hidden sm:inline">Gửi</span><i class="fa-solid fa-paper-plane text-[10px]"></i></button>
+        </div>
+        <div class="flex justify-between px-1 pt-1 text-[9px] opacity-50 font-mono">
+          <span id="char-counter">0 ký tự · ~0 tokens</span>
+          <span id="lang-detect-label" class="hidden sm:inline"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+/* ============ STATE ============ */
+const providerData = {
+  free: { name:"Miễn Phí (Không cần Key)", endpoint:"https://text.pollinations.ai/openai", format:"openai", noKey:true,
+    models:[{id:"openai",name:"OpenAI (Free)"},{id:"openai-large",name:"OpenAI Large (Free)"},{id:"mistral",name:"Mistral (Free)"},{id:"llama",name:"Llama (Free)"},{id:"searchgpt",name:"SearchGPT (Free, có tìm web)"}] },
+  groq: { name:"Groq Cloud", endpoint:"https://api.groq.com/openai/v1/chat/completions", format:"openai", models:[{id:"llama-3.3-70b-versatile",name:"Llama 3.3 70B"},{id:"llama-3.1-8b-instant",name:"Llama 3.1 8B Instant"}] },
+  gemini: { name:"Google Gemini", format:"gemini", models:[{id:"gemini-2.5-flash",name:"Gemini 2.5 Flash"},{id:"gemini-2.5-pro",name:"Gemini 2.5 Pro"}] },
+  openai: { name:"OpenAI", endpoint:"https://api.openai.com/v1/chat/completions", format:"openai", models:[{id:"gpt-4o-mini",name:"GPT-4o Mini"},{id:"gpt-4o",name:"GPT-4o"}] },
+  deepseek: { name:"DeepSeek", endpoint:"https://api.deepseek.com/chat/completions", format:"openai", models:[{id:"deepseek-chat",name:"DeepSeek V3"}] },
+  anthropic: { name:"Anthropic", endpoint:"https://api.anthropic.com/v1/messages", format:"anthropic", models:[{id:"claude-sonnet-4-6",name:"Claude Sonnet 4.6"}] },
+  custom: { name:"Tùy Chỉnh", format:"openai", models:[{id:"custom-model",name:"Model Tùy Chỉnh"}] }
+};
+const PERSONAS = {
+  coder: "Bạn là lập trình viên senior, trả lời chính xác, có code mẫu rõ ràng.",
+  teacher: "Bạn là giáo viên kiên nhẫn, giải thích từng bước dễ hiểu cho người mới.",
+  writer: "Bạn là nhà văn sáng tạo, giàu hình ảnh và cảm xúc trong câu chữ.",
+  analyst: "Bạn là chuyên gia phân tích dữ liệu, trả lời có cấu trúc, logic, số liệu rõ ràng.",
+  translator: "Bạn là phiên dịch viên chuyên nghiệp, dịch chính xác và giữ đúng văn phong."
+};
+const ACHIEVEMENTS = [
+  {id:'first_msg', name:'Tin nhắn đầu tiên', icon:'fa-flag-checkered', cond: s=>s.totalMessages>=1},
+  {id:'chatty', name:'Chuyện phiếm', icon:'fa-comments', cond: s=>s.totalMessages>=50},
+  {id:'rich', name:'Đại gia Coin', icon:'fa-sack-dollar', cond: s=>s.userCoins>=1000},
+  {id:'collector', name:'Sưu tầm phiên', icon:'fa-layer-group', cond: s=>s.totalSessions>=5},
+  {id:'maxed', name:'Full Nâng Cấp', icon:'fa-crown', cond: s=>s.unlockedUpgrades.length>=3},
+  {id:'streamer', name:'Streaming Master', icon:'fa-bolt', cond: s=>s.streamCount>=10},
+  {id:'voice', name:'Giọng Nói', icon:'fa-microphone', cond: s=>s.voiceUsed},
+  {id:'archivist', name:'Nhà Lưu Trữ', icon:'fa-box-archive', cond: s=>s.exportCount>=1},
+];
+
+let chatSessions = JSON.parse(localStorage.getItem('bedrock_sessions_v8') || 'null') || [{id:'s_default', title:'Phiên chat mới', pinned:false, messages:[{role:'assistant', text:'Phiên mới đã sẵn sàng! Hỏi tôi bất cứ điều gì.', ts:Date.now()}]}];
+let currentSessionId = localStorage.getItem('bedrock_current_session_v8') || chatSessions[0].id;
+let userCoins = parseInt(localStorage.getItem('bedrock_user_coins')) || 150;
+let unlockedUpgrades = JSON.parse(localStorage.getItem('bedrock_unlocked_upgrades') || '[]');
+let bookmarks = JSON.parse(localStorage.getItem('bedrock_bookmarks') || '[]');
+let stats = JSON.parse(localStorage.getItem('bedrock_stats') || '{"totalMessages":0,"totalSessions":1,"streamCount":0,"voiceUsed":false,"exportCount":0,"tokensApprox":0}');
+let currentAttachedFiles = [];
+let startTime = Date.now();
+let abortController = null;
+let confirmResolver = null;
+let recognizing = false;
+let particlesEnabled = localStorage.getItem('bedrock_particles') !== 'off';
+let selectMode = false;
+let selectedMessages = [];
+const EMOJI_LIST = ['😀','😂','🥹','😍','🤔','😎','😭','🥳','👍','👎','🙏','🔥','💯','🎉','❤️','✨','🚀','⚡','💡','✅','❌','⭐','📌','📎','💬','🤖','👀','🙌','😅','😴'];
+
+const UPGRADES = [
+  {id:'turbo', name:'⚡ Turbo Mode', desc:'Tối ưu hóa phản hồi siêu tốc.', cost:300, sys:' (Turbo: Ngắn gọn, siêu tốc).'},
+  {id:'deep', name:'🧠 Deep Reason', desc:'Kích hoạt phân tích logic sâu.', cost:600, sys:' (Deep: Phân tích logic sâu).'},
+  {id:'aggressive', name:'🔥 Cục Súc Max', desc:'Nâng độ thẳng thắn, gắt gỏng tối đa.', cost:1000, sys:' (Cục Súc Max: Bố đời, cực kỳ cục súc).'},
+  {id:'vision', name:'👁️ Vision Insight', desc:'Phân tích nội dung ảnh/tệp sâu hơn.', cost:800, sys:' (Vision: Mô tả và phân tích chi tiết mọi tệp đính kèm).'},
+  {id:'multilang', name:'🌐 Đa Ngôn Ngữ', desc:'Tự nhận diện & phản hồi đúng ngôn ngữ người dùng.', cost:500, sys:' (Luôn trả lời bằng đúng ngôn ngữ người dùng sử dụng).'},
+];
+
+/* ============ TOAST / CONFIRM ============ */
+function showToast(msg, type='info'){
+  if(document.getElementById('sound-toggle-btn') && localStorage.getItem('bedrock_sound') !== 'off') playBeep(type);
+  const stack = document.getElementById('toast-stack');
+  const icons = {success:'fa-check text-emerald-400 bg-emerald-500/20', info:'fa-info text-primary-400 bg-primary-500/20', error:'fa-triangle-exclamation text-rose-400 bg-rose-500/20'};
+  const el = document.createElement('div');
+  el.className = 'toast-item glass-panel px-4 py-3 rounded-2xl text-xs font-mono border border-primary-500/30 flex items-center space-x-3 shadow-2xl';
+  el.innerHTML = `<div class="w-6 h-6 rounded-lg ${icons[type]||icons.info} flex items-center justify-center shrink-0"><i class="fa-solid ${(icons[type]||icons.info).split(' ')[0]} text-xs"></i></div><span>${escapeHtml(msg)}</span>`;
+  stack.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateY(10px)'; setTimeout(()=>el.remove(),250); }, 2500);
+}
+function showUndoToast(msg, onUndo){
+  const stack = document.getElementById('toast-stack');
+  const el = document.createElement('div');
+  el.className = 'toast-item glass-panel px-4 py-3 rounded-2xl text-xs font-mono border border-amber-500/30 flex items-center space-x-3 shadow-2xl';
+  el.innerHTML = `<div class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0"><i class="fa-solid fa-trash text-xs"></i></div><span>${escapeHtml(msg)}</span><button class="text-primary-400 font-bold underline ml-2">Hoàn tác</button>`;
+  el.querySelector('button').onclick = ()=>{ onUndo(); el.remove(); showToast("Đã hoàn tác!","success"); };
+  stack.appendChild(el);
+  setTimeout(()=>{ if(el.parentElement){ el.style.opacity='0'; el.style.transform='translateY(10px)'; setTimeout(()=>el.remove(),250); } }, 5000);
+}
+function playBeep(type){
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.frequency.value = type==='error'?200:(type==='success'?880:600);
+    o.connect(g); g.connect(ctx.destination); g.gain.setValueAtTime(0.05, ctx.currentTime);
+    o.start(); o.stop(ctx.currentTime+0.08);
+  }catch(e){}
+}
+function askConfirm(msg){
+  return new Promise(res=>{
+    document.getElementById('confirm-msg').innerText = msg;
+    toggleModal('confirm-modal', true);
+    confirmResolver = res;
+  });
+}
+function resolveConfirm(v){ toggleModal('confirm-modal', false); if(confirmResolver) confirmResolver(v); confirmResolver=null; }
+function confirmReset(){
+  askConfirm("Xóa TOÀN BỘ dữ liệu (phiên chat, coin, cấu hình)? Không thể hoàn tác!").then(ok=>{
+    if(ok){ localStorage.clear(); location.reload(); }
+  });
+}
+
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function toggleModal(id, force){
+  const el = document.getElementById(id);
+  const show = force===undefined ? el.classList.contains('hidden') : force;
+  el.classList.toggle('hidden', !show);
+  el.classList.toggle('flex', show);
+}
+
+/* ============ THEME / DISPLAY ============ */
+function setCustomTheme(hex){
+  const root = document.documentElement;
+  root.style.setProperty('--primary-color', hex);
+  root.style.setProperty('--primary-light', hex);
+  root.style.setProperty('--primary-dark', hex);
+  root.style.setProperty('--primary-deep', hex);
+  root.style.setProperty('--primary-sub-bg', hex+'25');
+  root.style.setProperty('--primary-border', hex+'50');
+  root.style.setProperty('--primary-shadow', hex+'40');
+  root.style.setProperty('--primary-shadow-strong', hex+'70');
+  localStorage.setItem('bedrock_custom_color_v8', hex);
+  document.getElementById('custom-color-picker').value = hex;
+  showToast("Đã đổi màu giao diện!","success");
+}
+function toggleDarkMode(){
+  const isDark = document.body.classList.toggle('dark');
+  document.documentElement.classList.toggle('dark', isDark);
+  localStorage.setItem('bedrock_dark', isDark ? 'on':'off');
+  document.getElementById('dark-toggle-btn').innerText = isDark ? 'Tối' : 'Sáng';
+}
+function toggleDensity(){
+  const compact = document.body.classList.toggle('density-compact');
+  localStorage.setItem('bedrock_density', compact?'compact':'comfortable');
+  document.getElementById('density-toggle-btn').innerText = compact ? 'Gọn' : 'Thoải mái';
+}
+function adjustFontScale(delta){
+  let scale = parseFloat(localStorage.getItem('bedrock_font_scale')||'1');
+  scale = Math.min(1.3, Math.max(0.8, scale+delta));
+  document.documentElement.style.setProperty('--ui-scale', scale);
+  localStorage.setItem('bedrock_font_scale', scale);
+  document.getElementById('font-scale-display').innerText = Math.round(scale*100)+'%';
+}
+function toggleSound(){
+  const on = localStorage.getItem('bedrock_sound') !== 'off';
+  localStorage.setItem('bedrock_sound', on ? 'off':'on');
+  document.getElementById('sound-toggle-btn').innerText = on ? 'Tắt':'Bật';
+}
+function toggleParticles(){
+  particlesEnabled = !particlesEnabled;
+  localStorage.setItem('bedrock_particles', particlesEnabled?'on':'off');
+  document.getElementById('particles-toggle-btn').innerText = particlesEnabled?'Bật':'Tắt';
+  document.getElementById('particles-bg').style.display = particlesEnabled?'block':'none';
+}
+/* ============ BACKGROUND / WALLPAPER ============ */
+const PRESET_WALLPAPERS = [
+  {id:'none', css:'none'},
+  {id:'aurora', css:'linear-gradient(135deg,#1e1b4b,#4c1d95,#7c3aed)'},
+  {id:'sunset', css:'linear-gradient(135deg,#7c2d12,#c2410c,#f59e0b)'},
+  {id:'ocean', css:'linear-gradient(135deg,#082f49,#0369a1,#06b6d4)'},
+  {id:'forest', css:'linear-gradient(135deg,#052e16,#166534,#22c55e)'},
+  {id:'rose', css:'linear-gradient(135deg,#4c0519,#be123c,#f43f5e)'},
+  {id:'mono', css:'linear-gradient(135deg,#0a0a0a,#262626,#525252)'},
+  {id:'dots', css:'radial-gradient(circle,#8b5cf655 1px,transparent 1px), linear-gradient(#030712,#030712)', size:'18px 18px, cover'},
+];
+function renderWallpaperGallery(){
+  const box = document.getElementById('wallpaper-gallery');
+  const active = localStorage.getItem('bedrock_wallpaper_id') || 'none';
+  box.innerHTML = PRESET_WALLPAPERS.map(w=>`
+    <div class="wallpaper-thumb ${active===w.id?'active':''}" style="background:${w.css};${w.size?`background-size:${w.size.split(',')[0]};`:''}" onclick="applyPresetWallpaper('${w.id}')" title="${w.id}"></div>
+  `).join('');
+}
+function applyPresetWallpaper(id){
+  const w = PRESET_WALLPAPERS.find(x=>x.id===id);
+  const layer = document.getElementById('bg-layer');
+  localStorage.removeItem('bedrock_bg_image');
+  localStorage.setItem('bedrock_wallpaper_id', id);
+  if(id==='none'){ layer.style.background='none'; }
+  else { layer.style.background = w.css; if(w.size) layer.style.backgroundSize = w.size.split(',')[0]; }
+  renderWallpaperGallery();
+  showToast("Đã áp dụng hình nền!","success");
+}
+function uploadBackground(event){
+  const file = event.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    document.getElementById('bg-layer').style.background = `url('${e.target.result}') center/cover no-repeat`;
+    localStorage.setItem('bedrock_bg_image', e.target.result);
+    localStorage.removeItem('bedrock_wallpaper_id');
+    renderWallpaperGallery();
+    showToast("Đã tải ảnh nền tùy chỉnh!","success");
+  };
+  reader.readAsDataURL(file);
+}
+function clearBackground(){
+  document.getElementById('bg-layer').style.background = 'none';
+  localStorage.removeItem('bedrock_bg_image');
+  localStorage.setItem('bedrock_wallpaper_id','none');
+  renderWallpaperGallery();
+  showToast("Đã xóa hình nền!","info");
+}
+function setBgOpacity(v){
+  document.documentElement.style.setProperty('--bg-overlay-opacity', v);
+  document.getElementById('bg-opacity-val').innerText = Math.round(v*100)+'%';
+  localStorage.setItem('bedrock_bg_opacity', v);
+}
+
+/* ============ BUBBLE CUSTOMIZATION ============ */
+function setBubbleColor(who, hex){
+  if(who==='user'){ document.documentElement.style.setProperty('--bubble-user-color', hex); localStorage.setItem('bedrock_bubble_user', hex); }
+  else { document.documentElement.style.setProperty('--bubble-ai-color', hex); localStorage.setItem('bedrock_bubble_ai', hex); }
+  showToast("Đã cập nhật màu bong bóng!","success");
+}
+function setBubbleRadius(v){
+  document.documentElement.style.setProperty('--bubble-radius', v+'px');
+  document.getElementById('bubble-radius-val').innerText = v+'px';
+  localStorage.setItem('bedrock_bubble_radius', v);
+}
+function setBubbleWidth(v){
+  document.documentElement.style.setProperty('--bubble-maxw', v+'%');
+  document.getElementById('bubble-width-val').innerText = v+'%';
+  localStorage.setItem('bedrock_bubble_width', v);
+}
+function toggleBubbleTail(){
+  const off = document.getElementById('chat-messages').classList.toggle('bubble-notail-wrap');
+  document.querySelectorAll('#chat-messages .bubble-user-cyber,#chat-messages .bubble-ai-cyber').forEach(el=>el.classList.toggle('bubble-notail'));
+  const noTail = document.body.classList.toggle('no-bubble-tail');
+  localStorage.setItem('bedrock_bubble_tail', noTail?'off':'on');
+  document.getElementById('bubble-tail-btn').innerText = noTail ? 'Không' : 'Có';
+}
+function setChatFont(font){
+  document.documentElement.style.setProperty('--chat-font', font);
+  localStorage.setItem('bedrock_chat_font', font);
+}
+function toggleAvatars(){
+  const hidden = document.body.classList.toggle('avatars-hidden');
+  localStorage.setItem('bedrock_avatars', hidden?'off':'on');
+  document.getElementById('avatars-toggle-btn').innerText = hidden ? 'Ẩn':'Hiện';
+}
+function toggleMsgAnim(){
+  const off = document.body.classList.toggle('noanim');
+  localStorage.setItem('bedrock_msg_anim', off?'off':'on');
+  document.getElementById('msg-anim-toggle-btn').innerText = off ? 'Tắt':'Bật';
+}
+function toggleTimeFormat(){
+  const is12 = localStorage.getItem('bedrock_time_format')==='12';
+  localStorage.setItem('bedrock_time_format', is12?'24':'12');
+  document.getElementById('time-format-btn').innerText = is12 ? '24h':'12h';
+  saveAndRenderChat();
+}
+function formatMsgTime(ts){
+  if(!ts) return '';
+  const is12 = localStorage.getItem('bedrock_time_format')==='12';
+  return new Date(ts).toLocaleTimeString('vi-VN', is12 ? {hour:'2-digit',minute:'2-digit',hour12:true} : {hour:'2-digit',minute:'2-digit',hour12:false});
+}
+function applyBubbleTailClassesToNewMessages(){
+  if(localStorage.getItem('bedrock_bubble_tail')==='off'){
+    document.querySelectorAll('#chat-messages .bubble-user-cyber,#chat-messages .bubble-ai-cyber').forEach(el=>el.classList.add('bubble-notail'));
+  }
+}
+
+function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('sidebar-collapsed'); }
+function toggleFocusMode(){ document.getElementById('sidebar').classList.toggle('hidden'); }
+
+/* ============ PARTICLES BACKGROUND ============ */
+function initParticles(){
+  const canvas = document.getElementById('particles-bg');
+  if(!particlesEnabled){ canvas.style.display='none'; return; }
+  const ctx = canvas.getContext('2d');
+  function resize(){ canvas.width=innerWidth; canvas.height=innerHeight; }
+  resize(); addEventListener('resize', resize);
+  const pts = Array.from({length:40}, ()=>({x:Math.random()*innerWidth, y:Math.random()*innerHeight, vx:(Math.random()-.5)*.3, vy:(Math.random()-.5)*.3}));
+  function loop(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const color = getComputedStyle(document.documentElement).getPropertyValue('--primary-color') || '#8b5cf6';
+    ctx.fillStyle = color;
+    pts.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0||p.x>innerWidth)p.vx*=-1;
+      if(p.y<0||p.y>innerHeight)p.vy*=-1;
+      ctx.globalAlpha=0.35; ctx.beginPath(); ctx.arc(p.x,p.y,1.6,0,7); ctx.fill();
+    });
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+/* ============ FILE HANDLING ============ */
+function handleFileSelect(event){ addFiles([...event.target.files]); }
+function addFiles(files){
+  files.forEach(file=>{
+    const reader = new FileReader();
+    const isImg = file.type.startsWith('image/');
+    reader.onload = e=>{
+      currentAttachedFiles.push({name:file.name, content:e.target.result, isImg});
+      renderAttachedFiles();
+      showToast(`Đã tải: ${file.name}`, 'success');
+    };
+    isImg ? reader.readAsDataURL(file) : reader.readAsText(file);
+  });
+}
+function renderAttachedFiles(){
+  const box = document.getElementById('attached-files-preview');
+  if(currentAttachedFiles.length===0){ box.classList.add('hidden'); box.classList.remove('flex'); return; }
+  box.classList.remove('hidden'); box.classList.add('flex');
+  box.innerHTML = currentAttachedFiles.map((f,i)=>`
+    <div class="flex items-center justify-between px-3 py-1.5 bg-white/5 rounded-xl text-[11px] font-mono border border-white/10">
+      <span class="truncate text-primary-400 flex items-center gap-1.5 cursor-${f.isImg?'zoom-in':'default'}" ${f.isImg?`onclick="openImageLightbox('${f.content}')"`:''}>
+        ${f.isImg?`<img src="${f.content}" class="w-6 h-6 rounded object-cover">`:'📎'} ${escapeHtml(f.name)}
+      </span>
+      <button onclick="removeAttachedFile(${i})" class="text-rose-400 hover:text-rose-300 ml-2"><i class="fa-solid fa-xmark"></i></button>
+    </div>`).join('');
+}
+function removeAttachedFile(i){ currentAttachedFiles.splice(i,1); renderAttachedFiles(); }
+
+/* ============ TAB TITLE FLASH ============ */
+const __originalTitle = document.title;
+let __tabFlashInterval = null;
+function startTabFlash(){
+  if(__tabFlashInterval) return;
+  let on = false;
+  __tabFlashInterval = setInterval(()=>{ document.title = on ? __originalTitle : '💬 Tin nhắn mới!'; on=!on; }, 1000);
+}
+function stopTabFlash(){ if(__tabFlashInterval){ clearInterval(__tabFlashInterval); __tabFlashInterval=null; document.title=__originalTitle; } }
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) stopTabFlash(); });
+
+/* ============ IMAGE LIGHTBOX ============ */
+function openImageLightbox(src){
+  const overlay = document.createElement('div');
+  overlay.className = 'fixed inset-0 z-[80] bg-black/90 backdrop-blur-md flex items-center justify-center p-6 cursor-zoom-out';
+  overlay.innerHTML = `<img src="${src}" class="max-w-full max-h-full rounded-2xl shadow-2xl">`;
+  overlay.onclick = ()=>overlay.remove();
+  document.body.appendChild(overlay);
+}
+const dropZone = ()=>document.getElementById('drop-zone');
+window.addEventListener('DOMContentLoaded', ()=>{
+  const dz = dropZone();
+  ['dragover','drop'].forEach(evt=>dz.addEventListener(evt, e=>e.preventDefault()));
+  dz.addEventListener('dragover', ()=>dz.classList.add('ring-2','ring-primary-500'));
+  dz.addEventListener('dragleave', ()=>dz.classList.remove('ring-2','ring-primary-500'));
+  dz.addEventListener('drop', e=>{ dz.classList.remove('ring-2','ring-primary-500'); addFiles([...e.dataTransfer.files]); });
+});
+
+/* ============ VOICE INPUT / TTS ============ */
+function toggleVoiceInput(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ showToast("Trình duyệt không hỗ trợ nhận diện giọng nói","error"); return; }
+  const btn = document.getElementById('voice-btn');
+  if(recognizing){ recognizing=false; btn.classList.remove('ring-2','ring-rose-500'); return; }
+  const rec = new SR(); rec.lang='vi-VN'; rec.interimResults=false;
+  rec.onstart = ()=>{ recognizing=true; btn.classList.add('ring-2','ring-rose-500'); };
+  rec.onend = ()=>{ recognizing=false; btn.classList.remove('ring-2','ring-rose-500'); };
+  rec.onresult = e=>{
+    const input = document.getElementById('chat-input');
+    input.value += (input.value?' ':'') + e.results[0][0].transcript;
+    autoResize(input); saveDraft();
+    stats.voiceUsed = true; saveStats(); checkAchievements();
+  };
+  rec.start();
+}
+function speakText(text){
+  if(!window.speechSynthesis){ showToast("Không hỗ trợ đọc văn bản","error"); return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text.replace(/[#*`_>-]/g,''));
+  u.lang='vi-VN'; speechSynthesis.speak(u);
+}
+
+/* ============ AUTO RESIZE / DRAFT / COUNTER ============ */
+function autoResize(el){ el.style.height='auto'; el.style.height=Math.max(36,Math.min(el.scrollHeight,128))+'px'; updateCharCounter(); }
+function updateCharCounter(){
+  const v = document.getElementById('chat-input').value;
+  document.getElementById('char-counter').innerText = `${v.length} ký tự · ~${Math.ceil(v.length/4)} tokens`;
+  const lang = /[a-zA-Z]/.test(v) && !/[àáảãạđêôơưăâ]/i.test(v) && v.length>10 ? 'EN detected' : (v.length>3 ? 'VI detected' : '');
+  document.getElementById('lang-detect-label').innerText = lang;
+}
+function saveDraft(){ localStorage.setItem('bedrock_draft_'+currentSessionId, document.getElementById('chat-input').value); }
+
+/* ============ EMOJI PICKER ============ */
+function toggleEmojiPicker(event){
+  const picker = document.getElementById('emoji-picker');
+  if(!picker.classList.contains('hidden')){ picker.classList.add('hidden'); return; }
+  picker.innerHTML = EMOJI_LIST.map(e=>`<button onclick="insertEmoji('${e}')" class="text-lg hover:scale-125 transition-transform">${e}</button>`).join('');
+  const rect = event.currentTarget.getBoundingClientRect();
+  picker.style.bottom = (window.innerHeight - rect.top + 8) + 'px';
+  picker.style.left = Math.max(8, rect.left - 100) + 'px';
+  picker.classList.remove('hidden');
+}
+function insertEmoji(e){
+  const input = document.getElementById('chat-input');
+  input.value += e; input.focus(); autoResize(input); saveDraft();
+  document.getElementById('emoji-picker').classList.add('hidden');
+}
+document.addEventListener('click', (e)=>{
+  const picker = document.getElementById('emoji-picker');
+  if(picker && !picker.classList.contains('hidden') && !picker.contains(e.target) && e.target.id!=='emoji-btn' && !e.target.closest('#emoji-btn')){
+    picker.classList.add('hidden');
+  }
+});
+
+/* ============ MUSIC PLAYER (YouTube / Spotify) ============ */
+function toggleMusicPanel(){
+  const panel = document.getElementById('music-panel');
+  const wasHidden = panel.classList.contains('hidden');
+  panel.classList.toggle('hidden');
+  panel.classList.toggle('flex');
+  document.getElementById('music-fab').classList.toggle('hidden', wasHidden);
+  if(wasHidden) renderMusicPlaylist();
+}
+function parseMusicUrl(url){
+  url = url.trim();
+  let m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{6,})/);
+  if(m){ return { type:'youtube', id:m[1], embedUrl:`https://www.youtube.com/embed/${m[1]}?autoplay=1`, label:'YouTube: '+m[1] }; }
+  m = url.match(/open\.spotify\.com\/(?:intl-\w+\/)?(track|album|playlist|episode|show)\/([a-zA-Z0-9]+)/);
+  if(m){ return { type:'spotify', id:m[2], kind:m[1], embedUrl:`https://open.spotify.com/embed/${m[1]}/${m[2]}`, label:'Spotify: '+m[1]+' '+m[2] }; }
+  return null;
+}
+function renderMusicEmbed(track){
+  const box = document.getElementById('music-embed-container');
+  if(!track){ box.innerHTML = 'Chưa có bài hát nào đang phát'; box.className='rounded-2xl overflow-hidden bg-black/30 border border-white/10 min-h-[80px] flex items-center justify-center text-[11px] opacity-50 font-mono'; return; }
+  box.className = 'rounded-2xl overflow-hidden bg-black/30 border border-white/10';
+
+  const isWebOrigin = location.protocol==='http:' || location.protocol==='https:';
+  const externalUrl = track.type==='youtube' ? `https://www.youtube.com/watch?v=${track.id}` : `https://open.spotify.com/${track.kind}/${track.id}`;
+  const externalBtn = `<div class="p-2.5"><a href="${externalUrl}" target="_blank" rel="noopener" class="btn-cyber w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-bold"><i class="fa-solid fa-arrow-up-right-from-square"></i> Mở ${track.type==='youtube'?'YouTube':'Spotify'} Trực Tiếp</a></div>`;
+
+  if(!isWebOrigin){
+    box.innerHTML = `
+      <div class="p-3 space-y-2 text-[11px] font-mono">
+        <p class="text-amber-400 font-bold"><i class="fa-solid fa-triangle-exclamation"></i> Không thể nhúng video ở đây</p>
+        <p class="opacity-70">Bạn đang mở file bằng đường dẫn <code class="bg-black/40 px-1 rounded">${escapeHtml(location.protocol)}</code> (mở trực tiếp từ máy). ${track.type==='youtube'?'YouTube':'Spotify'} chặn nhúng video khi trang không có địa chỉ web thật (http/https) — đây là giới hạn bảo mật từ chính nền tảng đó, không phải lỗi của app.</p>
+        <p class="opacity-70">💡 Cách khắc phục: đưa file HTML này lên GitHub Pages / hosting thật (có link https://...), hoặc dùng nút bên dưới để mở trực tiếp.</p>
+      </div>
+      ${externalBtn}`;
+    return;
+  }
+
+  if(track.type==='youtube'){
+    box.innerHTML = `<iframe width="100%" height="180" src="${track.embedUrl}" title="YouTube player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>` + externalBtn;
+  } else {
+    box.innerHTML = `<iframe src="${track.embedUrl}" width="100%" height="${track.kind==='track'?152:352}" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>` + externalBtn;
+  }
+}
+let currentMusicTrack = null;
+function playMusicFromInput(){
+  const url = document.getElementById('music-url-input').value;
+  const track = parseMusicUrl(url);
+  if(!track){ showToast("Link không hợp lệ! Chỉ hỗ trợ YouTube hoặc Spotify.","error"); return; }
+  currentMusicTrack = track;
+  renderMusicEmbed(track);
+  showToast("Đang phát: "+track.label,"success");
+}
+function getMusicPlaylist(){ return JSON.parse(localStorage.getItem('bedrock_music_playlist') || '[]'); }
+function saveMusicToPlaylist(){
+  if(!currentMusicTrack){ showToast("Chưa có bài hát nào để lưu!","error"); return; }
+  const list = getMusicPlaylist();
+  if(list.some(t=>t.embedUrl===currentMusicTrack.embedUrl)){ showToast("Bài này đã có trong danh sách!","error"); return; }
+  list.unshift(currentMusicTrack);
+  localStorage.setItem('bedrock_music_playlist', JSON.stringify(list.slice(0,30)));
+  renderMusicPlaylist();
+  showToast("Đã lưu vào danh sách!","success");
+}
+function playFromPlaylist(i){
+  const list = getMusicPlaylist();
+  const track = list[i]; if(!track) return;
+  currentMusicTrack = track;
+  renderMusicEmbed(track);
+  document.getElementById('music-url-input').value = '';
+}
+function removeFromPlaylist(i, event){
+  event.stopPropagation();
+  const list = getMusicPlaylist();
+  list.splice(i,1);
+  localStorage.setItem('bedrock_music_playlist', JSON.stringify(list));
+  renderMusicPlaylist();
+}
+function renderMusicPlaylist(){
+  const list = getMusicPlaylist();
+  const box = document.getElementById('music-playlist');
+  if(list.length===0){ box.innerHTML = '<p class="text-[10px] opacity-40 font-mono p-1">Chưa lưu bài hát nào.</p>'; return; }
+  box.innerHTML = list.map((t,i)=>`
+    <div onclick="playFromPlaylist(${i})" class="btn-sub flex items-center justify-between px-2.5 py-1.5 rounded-xl text-[11px] font-mono cursor-pointer">
+      <span class="truncate flex items-center gap-1.5"><i class="fa-brands ${t.type==='youtube'?'fa-youtube text-rose-400':'fa-spotify text-emerald-400'}"></i> ${escapeHtml(t.label)}</span>
+      <button onclick="removeFromPlaylist(${i}, event)" class="text-rose-400 ml-2 shrink-0"><i class="fa-solid fa-xmark"></i></button>
+    </div>`).join('');
+}
+document.getElementById('music-url-input')?.addEventListener?.('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); playMusicFromInput(); } });
+
+function loadDraft(){
+  const d = localStorage.getItem('bedrock_draft_'+currentSessionId) || '';
+  const input = document.getElementById('chat-input'); input.value = d; autoResize(input);
+}
+
+/* ============ QUICK PROMPTS ============ */
+const DEFAULT_QUICK_PROMPTS = ["Giải thích đơn giản 🧒","Viết code mẫu 💻","Tóm tắt ngắn gọn 📝","Dịch sang tiếng Anh 🌐","Liệt kê ưu/nhược điểm ⚖️"];
+function getCustomQuickPrompts(){ return JSON.parse(localStorage.getItem('bedrock_custom_prompts') || '[]'); }
+function renderQuickPrompts(){
+  const all = [...DEFAULT_QUICK_PROMPTS.map(p=>({text:p, custom:false})), ...getCustomQuickPrompts().map(p=>({text:p, custom:true}))];
+  document.getElementById('quick-prompts').innerHTML = all.map((p,i)=>`
+    <span class="btn-sub px-2.5 py-1 rounded-lg inline-flex items-center gap-1.5">
+      <button onclick="usePrompt('${p.text.replace(/'/g,"")}')">${p.text}</button>
+      ${p.custom?`<button onclick="removeCustomQuickPrompt(${i-DEFAULT_QUICK_PROMPTS.length})" class="text-rose-400 text-[9px]"><i class="fa-solid fa-xmark"></i></button>`:''}
+    </span>`).join('');
+}
+function addCustomQuickPrompt(){
+  const input = document.getElementById('custom-prompt-input');
+  const val = input.value.trim();
+  if(!val){ showToast("Nhập nội dung prompt trước đã!","error"); return; }
+  const list = getCustomQuickPrompts(); list.push(val);
+  localStorage.setItem('bedrock_custom_prompts', JSON.stringify(list));
+  input.value=''; renderQuickPrompts();
+  showToast("Đã thêm prompt nhanh!","success");
+}
+function removeCustomQuickPrompt(i){
+  const list = getCustomQuickPrompts(); list.splice(i,1);
+  localStorage.setItem('bedrock_custom_prompts', JSON.stringify(list));
+  renderQuickPrompts();
+}
+function usePrompt(p){ const input=document.getElementById('chat-input'); input.value = p+': '; input.focus(); autoResize(input); }
+function applyPersona(){
+  const key = document.getElementById('persona-select').value;
+  if(key) document.getElementById('global-sys-prompt').value = PERSONAS[key];
+}
+
+/* ============ MARKDOWN RENDER ============ */
+marked.setOptions({ breaks:true });
+let __codeBlockSeq = 0;
+window.__codeBlocks = {};
+const EXT_BY_LANG = { javascript:'js', js:'js', typescript:'ts', ts:'ts', python:'py', py:'py', html:'html', xml:'xml', css:'css',
+  json:'json', java:'java', c:'c', cpp:'cpp', 'c++':'cpp', csharp:'cs', 'c#':'cs', php:'php', ruby:'rb', go:'go', rust:'rs',
+  bash:'sh', shell:'sh', sh:'sh', sql:'sql', yaml:'yml', yml:'yml', markdown:'md', md:'md', kotlin:'kt', swift:'swift', dart:'dart' };
+function guessExtFromLangClass(className){
+  const m = /language-(\w+)/.exec(className||'');
+  if(!m) return 'txt';
+  return EXT_BY_LANG[m[1].toLowerCase()] || m[1].toLowerCase() || 'txt';
+}
+function copyCodeBlock(id, btn){
+  const code = window.__codeBlocks[id] || '';
+  navigator.clipboard.writeText(code);
+  const old = btn.innerText; btn.innerText='Đã chép!'; setTimeout(()=>btn.innerText=old,1200);
+}
+function downloadCodeBlock(id, ext){
+  const code = window.__codeBlocks[id] || '';
+  downloadFile(code, `code_${id}.${ext}`, 'text/plain');
+  showToast(`Đã tạo file code_${id}.${ext}`, 'success');
+  stats.exportCount++; saveStats(); checkAchievements();
+}
+function renderMarkdown(text){
+  try{
+    const html = marked.parse(text||'');
+    const div = document.createElement('div'); div.innerHTML = html;
+    div.querySelectorAll('pre code').forEach(block=>{
+      hljs.highlightElement(block);
+      const id = ++__codeBlockSeq;
+      window.__codeBlocks[id] = block.innerText;
+      const ext = guessExtFromLangClass(block.className);
+      const wrap = document.createElement('div');
+      wrap.className = 'flex gap-1 flex-wrap justify-end';
+      wrap.style.position='absolute'; wrap.style.top='6px'; wrap.style.right='6px'; wrap.style.maxWidth='90%';
+      const copyBtn = document.createElement('button');
+      copyBtn.className='copy-code-btn'; copyBtn.innerText='Copy';
+      copyBtn.onclick = ()=>copyCodeBlock(id, copyBtn);
+      const dlBtn = document.createElement('button');
+      dlBtn.className='copy-code-btn'; dlBtn.innerHTML='<i class="fa-solid fa-download"></i> .'+ext;
+      dlBtn.onclick = ()=>downloadCodeBlock(id, ext);
+      wrap.appendChild(copyBtn); wrap.appendChild(dlBtn);
+      block.parentElement.style.position='relative'; block.parentElement.appendChild(wrap);
+    });
+    return div.innerHTML;
+  }catch(e){ return escapeHtml(text); }
+}
+
+/* ============ SESSIONS ============ */
+function getCurrentSession(){
+  let s = chatSessions.find(x=>x.id===currentSessionId);
+  if(!s){ currentSessionId = chatSessions[0].id; s = chatSessions[0]; }
+  return s;
+}
+function createNewChatSession(){
+  const id = 's_'+Date.now();
+  chatSessions.unshift({id, title:'Phiên chat mới', pinned:false, messages:[{role:'assistant', text:'Phiên mới đã sẵn sàng!', ts:Date.now()}]});
+  currentSessionId = id;
+  stats.totalSessions++; saveStats();
+  saveAndRenderChat();
+  document.getElementById('chat-input').focus();
+}
+function switchSession(id){ currentSessionId=id; saveAndRenderChat(); loadDraft(); }
+async function deleteSession(event,id){
+  event.stopPropagation();
+  if(chatSessions.length<=1){ showToast("Phải giữ lại 1 phiên!","error"); return; }
+  const ok = await askConfirm("Xóa phiên chat này?");
+  if(ok){
+    const idx = chatSessions.findIndex(s=>s.id===id);
+    const removed = chatSessions[idx];
+    chatSessions = chatSessions.filter(s=>s.id!==id);
+    if(currentSessionId===id) currentSessionId=chatSessions[0].id;
+    saveAndRenderChat();
+    showUndoToast("Đã xóa phiên chat!", ()=>{ chatSessions.splice(idx,0,removed); currentSessionId=removed.id; saveAndRenderChat(); });
+  }
+}
+function togglePinSession(event,id){ event.stopPropagation(); const s=chatSessions.find(x=>x.id===id); if(s){ s.pinned=!s.pinned; saveAndRenderChat(); showToast(s.pinned?"Đã ghim!":"Đã bỏ ghim!","info"); } }
+function renameSession(event,id){
+  event.stopPropagation();
+  const s = chatSessions.find(x=>x.id===id); if(!s) return;
+  const name = prompt("Nhập tên mới:", s.title);
+  if(name && name.trim()){ s.title=name.trim(); saveAndRenderChat(); showToast("Đã đổi tên!","success"); }
+}
+function duplicateSession(event,id){
+  event.stopPropagation();
+  const s = chatSessions.find(x=>x.id===id); if(!s) return;
+  const copy = JSON.parse(JSON.stringify(s)); copy.id='s_'+Date.now(); copy.title=s.title+' (bản sao)';
+  chatSessions.unshift(copy); currentSessionId=copy.id; saveAndRenderChat(); showToast("Đã sao chép phiên!","success");
+}
+
+function sessionDateGroup(session){
+  const last = session.messages[session.messages.length-1];
+  if(!last || !last.ts) return 'Khác';
+  const d = new Date(last.ts); const now = new Date();
+  const startOfDay = dt => new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()).getTime();
+  const diffDays = Math.round((startOfDay(now)-startOfDay(d))/86400000);
+  if(diffDays<=0) return 'Hôm nay';
+  if(diffDays===1) return 'Hôm qua';
+  if(diffDays<=7) return 'Tuần này';
+  return 'Cũ hơn';
+}
+function setSessionIcon(event,id){
+  event.stopPropagation();
+  const icon = prompt("Nhập 1 emoji cho phiên này (vd: 🚀 💡 🎨):", "");
+  if(icon===null) return;
+  const s = chatSessions.find(x=>x.id===id); if(s){ s.icon = icon.trim().substring(0,4); saveAndRenderChat(); }
+}
+function saveAndRenderChat(){
+  chatSessions.sort((a,b)=>(b.pinned===true)-(a.pinned===true));
+  localStorage.setItem('bedrock_sessions_v8', JSON.stringify(chatSessions));
+  localStorage.setItem('bedrock_current_session_v8', currentSessionId);
+
+  const filter = (document.getElementById('session-filter-input')?.value||'').toLowerCase();
+  const filtered = chatSessions.filter(s=>s.title.toLowerCase().includes(filter));
+  document.getElementById('session-count').innerText = chatSessions.length;
+
+  const groupOrder = ['Hôm nay','Hôm qua','Tuần này','Cũ hơn','Khác'];
+  const groups = {};
+  filtered.forEach(s=>{ const g = s.pinned ? '📌 Đã Ghim' : sessionDateGroup(s); (groups[g]=groups[g]||[]).push(s); });
+  const orderedKeys = ['📌 Đã Ghim', ...groupOrder].filter(k=>groups[k]);
+
+  document.getElementById('session-list').innerHTML = orderedKeys.map(groupKey => `
+    <div class="text-[9px] uppercase tracking-wider opacity-40 font-bold pt-1.5 pb-0.5 px-1">${groupKey}</div>
+    ${groups[groupKey].map(s=>`
+    <div onclick="switchSession('${s.id}')" class="group flex items-center justify-between p-2 rounded-xl cursor-pointer text-xs font-mono transition-all ${s.id===currentSessionId?'bg-primary-600/20 border border-primary-500/40 text-primary-400 font-bold':'btn-sub'}">
+      <div class="flex items-center space-x-2 truncate flex-1 pr-1">
+        ${s.pinned?'<i class="fa-solid fa-thumbtack text-amber-400 text-[10px]"></i>':''}
+        <span onclick="setSessionIcon(event,'${s.id}')" title="Đổi biểu tượng">${s.icon || '💬'}</span>
+        <span class="truncate">${escapeHtml(s.title)}</span>
+        <span class="text-[9px] opacity-40">(${s.messages.length})</span>
+      </div>
+      <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button onclick="duplicateSession(event,'${s.id}')" class="p-1 hover:text-cyan-400" title="Sao chép"><i class="fa-solid fa-copy"></i></button>
+        <button onclick="togglePinSession(event,'${s.id}')" class="p-1 hover:text-amber-400" title="Ghim"><i class="fa-solid fa-thumbtack"></i></button>
+        <button onclick="renameSession(event,'${s.id}')" class="p-1 hover:text-primary-400" title="Đổi tên"><i class="fa-solid fa-pen"></i></button>
+        <button onclick="deleteSession(event,'${s.id}')" class="p-1 hover:text-rose-400" title="Xóa"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>`).join('')}
+  `).join('');
+
+  const session = getCurrentSession();
+  document.getElementById('active-chat-title').innerText = (session.icon?session.icon+' ':'') + session.title;
+  const pinnedInput = document.getElementById('pinned-context-input');
+  if(pinnedInput && document.activeElement!==pinnedInput) pinnedInput.value = session.pinnedContext || '';
+
+  const chatContainer = document.getElementById('chat-messages');
+  const wasAtBottom = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight < 60;
+  chatContainer.innerHTML = session.messages.map((m,idx)=>renderMessageRow(m, idx, session)).join('');
+  applyBubbleTailClassesToNewMessages();
+  if(wasAtBottom && isAutoScrollEnabled()) scrollChatBottom();
+  updateUsageStats();
+}
+
+function renderMessageRow(m, idx, session){
+  const isUser = m.role==='user';
+  const time = formatMsgTime(m.ts);
+  const bookmarked = bookmarks.includes(session.id+'_'+idx);
+  const body = isUser ? escapeHtml(m.text).replace(/\n/g,'<br>') : renderMarkdown(m.text);
+  return `
+  <div class="flex flex-col ${isUser?'items-end':'items-start'} w-full msg-row fade-in" data-idx="${idx}">
+    <div class="flex items-center gap-1.5 mb-1 ${isUser?'flex-row-reverse':''}">
+      <input type="checkbox" class="msg-select-checkbox hidden accent-primary-500" onclick="toggleMsgSelect(${idx})" ${selectedMessages.includes(idx)?'checked':''}>
+      <div class="w-5 h-5 rounded-full ${isUser?'bg-primary-600':'bg-white/10'} flex items-center justify-center text-[9px]">${isUser?'<i class=\"fa-solid fa-user\"></i>':'<i class=\"fa-solid fa-robot\"></i>'}</div>
+      <span class="text-[9px] opacity-40 font-mono">${time}</span>
+    </div>
+    <div class="max-w-[90%] px-4 py-3 text-xs font-mono msg-pad msg-prose ${isUser?'bubble-user-cyber':'bubble-ai-cyber glass-panel'}">${body}</div>
+    <div class="msg-actions flex items-center gap-2 mt-1 text-[10px] opacity-60">
+      <button onclick="copyMessage(${idx})" title="Sao chép"><i class="fa-solid fa-copy"></i></button>
+      <button onclick="quoteMessage(${idx})" title="Trích dẫn & hỏi tiếp" class="text-violet-400"><i class="fa-solid fa-quote-left"></i></button>
+      ${isUser?`<button onclick="editMessage(${idx})" title="Sửa & gửi lại"><i class="fa-solid fa-pen"></i></button>`:`
+        <button onclick="regenerateMessage(${idx})" title="Tạo lại"><i class="fa-solid fa-rotate"></i></button>
+        <button onclick="continueMessage(${idx})" title="Tiếp tục câu trả lời (nếu bị cắt ngắn)" class="text-amber-400"><i class="fa-solid fa-forward"></i></button>
+        <button onclick="createFileFromMessage(${idx})" title="Tạo file từ câu trả lời này" class="text-cyan-400"><i class="fa-solid fa-file-arrow-down"></i></button>
+        <button onclick="speakText(\`${(m.text||'').replace(/`/g,"'")}\`)" title="Đọc to"><i class="fa-solid fa-volume-high"></i></button>
+        <button onclick="reactMessage(${idx},'up')" class="reaction-btn ${m.reaction==='up'?'active':''}" title="Thích"><i class="fa-solid fa-thumbs-up"></i></button>
+        <button onclick="reactMessage(${idx},'down')" class="reaction-btn ${m.reaction==='down'?'active':''}" title="Không thích"><i class="fa-solid fa-thumbs-down"></i></button>
+      `}
+      <button onclick="toggleBookmark(${idx})" title="Đánh dấu" class="${bookmarked?'text-amber-400':''}"><i class="fa-solid fa-bookmark"></i></button>
+      <button onclick="deleteMessage(${idx})" title="Xóa" class="hover:text-rose-400"><i class="fa-solid fa-trash"></i></button>
+    </div>
+  </div>`;
+}
+
+function scrollChatBottom(force){
+  const c = document.getElementById('chat-messages');
+  c.scrollTop = c.scrollHeight;
+  document.getElementById('scroll-bottom-btn').classList.add('hidden');
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('chat-messages').addEventListener('scroll', function(){
+    const atBottom = this.scrollHeight - this.scrollTop - this.clientHeight < 60;
+    document.getElementById('scroll-bottom-btn').classList.toggle('hidden', atBottom);
+    document.getElementById('scroll-bottom-btn').classList.toggle('flex', !atBottom);
+  });
+});
+
+function copyMessage(idx){ const s=getCurrentSession(); navigator.clipboard.writeText(s.messages[idx].text); showToast("Đã sao chép!","success"); }
+function deleteMessage(idx){ const s=getCurrentSession(); s.messages.splice(idx,1); saveAndRenderChat(); }
+function editMessage(idx){
+  const s=getCurrentSession(); const input=document.getElementById('chat-input');
+  input.value = s.messages[idx].text; autoResize(input); input.focus();
+  s.messages.splice(idx); saveAndRenderChat();
+}
+function reactMessage(idx, type){ const s=getCurrentSession(); s.messages[idx].reaction = s.messages[idx].reaction===type?null:type; saveAndRenderChat(); }
+function toggleBookmark(idx){
+  const key = currentSessionId+'_'+idx;
+  bookmarks = bookmarks.includes(key) ? bookmarks.filter(k=>k!==key) : [...bookmarks, key];
+  localStorage.setItem('bedrock_bookmarks', JSON.stringify(bookmarks));
+  saveAndRenderChat();
+}
+function regenerateMessage(idx){
+  const s = getCurrentSession();
+  let userIdx = idx-1;
+  while(userIdx>=0 && s.messages[userIdx].role!=='user') userIdx--;
+  if(userIdx<0) return;
+  s.messages.splice(idx);
+  saveAndRenderChat();
+  callAI();
+}
+function clearChat(){
+  const session = getCurrentSession();
+  session.messages = [{role:'assistant', text:'Đã làm sạch phiên chat!', ts:Date.now()}];
+  saveAndRenderChat();
+  showToast("Đã dọn sạch!","success");
+}
+function stopGeneration(){ if(abortController) abortController.abort(); }
+
+/* ============ SEARCH ============ */
+function renderSearchResults(){
+  const q = document.getElementById('global-search-input').value.toLowerCase().trim();
+  const box = document.getElementById('search-results');
+  if(!q){ box.innerHTML=''; return; }
+  let results = [];
+  chatSessions.forEach(s=>{
+    s.messages.forEach((m,idx)=>{
+      if(m.text && m.text.toLowerCase().includes(q)) results.push({session:s, idx, m});
+    });
+  });
+  if(results.length===0){ box.innerHTML='<p class="text-xs opacity-50 p-2">Không tìm thấy kết quả.</p>'; return; }
+  box.innerHTML = results.slice(0,30).map(r=>`
+    <div onclick="switchSession('${r.session.id}'); toggleModal('search-modal',false);" class="btn-sub p-2.5 rounded-xl cursor-pointer text-xs">
+      <div class="font-bold text-primary-400 truncate">${escapeHtml(r.session.title)}</div>
+      <div class="opacity-60 truncate text-[11px]">${escapeHtml(r.m.text.substring(0,90))}</div>
+    </div>`).join('');
+}
+
+/* ============ COMMAND PALETTE ============ */
+const COMMANDS = [
+  {label:'➕ Tạo đoạn chat mới', run:()=>createNewChatSession()},
+  {label:'🔍 Tìm kiếm hội thoại', run:()=>{ toggleModal('search-modal',true); document.getElementById('global-search-input').focus(); }},
+  {label:'⚙️ Mở Cài Đặt', run:()=>toggleModal('settings-modal',true)},
+  {label:'🛒 Mở Cửa Hàng Nâng Cấp', run:()=>{ toggleModal('shop-modal',true); renderShop(); }},
+  {label:'🔖 Xem tin nhắn đã đánh dấu', run:()=>openBookmarksPanel()},
+  {label:'🎵 Mở Trình Phát Nhạc (YouTube/Spotify)', run:()=>toggleMusicPanel()},
+  {label:'🌗 Đổi chế độ Sáng/Tối', run:()=>toggleDarkMode()},
+  {label:'📐 Đổi mật độ hiển thị', run:()=>toggleDensity()},
+  {label:'🧹 Làm sạch phiên hiện tại', run:()=>clearChat()},
+  {label:'💾 Xuất backup toàn bộ dữ liệu', run:()=>exportAllData()},
+  {label:'📄 Xuất phiên hiện tại (.txt)', run:()=>exportCurrentChat('txt')},
+  {label:'📋 Sao chép toàn bộ hội thoại', run:()=>copyWholeConversation()},
+  {label:'🪄 AI tự đặt tên phiên', run:()=>autoGenerateTitle()},
+  {label:'📝 Tóm tắt hội thoại', run:()=>summarizeChat()},
+  {label:'✅ Bật/tắt chế độ chọn nhiều tin nhắn', run:()=>toggleSelectMode()},
+  {label:'🎁 Nhận thưởng hằng ngày', run:()=>claimDailyBonus()},
+  {label:'🗑️ Xóa toàn bộ dữ liệu', run:()=>confirmReset()},
+];
+function renderCommandPalette(){
+  const q = document.getElementById('command-palette-input').value.toLowerCase().trim();
+  const box = document.getElementById('command-palette-results');
+  const filtered = q ? COMMANDS.filter(c=>c.label.toLowerCase().includes(q)) : COMMANDS;
+  if(filtered.length===0){ box.innerHTML='<p class="text-xs opacity-50 p-2">Không tìm thấy lệnh nào.</p>'; return; }
+  box.innerHTML = filtered.map((c,i)=>`<div onclick="runCommand(${COMMANDS.indexOf(c)})" class="btn-sub p-2.5 rounded-xl cursor-pointer text-xs">${c.label}</div>`).join('');
+}
+function runCommand(i){
+  toggleModal('command-palette-modal', false);
+  document.getElementById('command-palette-input').value='';
+  COMMANDS[i].run();
+}
+
+/* ============ BOOKMARKS PANEL ============ */
+function openBookmarksPanel(){
+  const box = document.getElementById('bookmarks-list');
+  if(bookmarks.length===0){ box.innerHTML='<p class="text-xs opacity-50 p-2">Chưa có tin nhắn nào được đánh dấu.</p>'; }
+  else {
+    box.innerHTML = bookmarks.map(key=>{
+      const [sid, idxStr] = key.split('_'); const idx = parseInt(idxStr);
+      const s = chatSessions.find(x=>x.id===sid);
+      if(!s || !s.messages[idx]) return '';
+      return `<div onclick="switchSession('${sid}'); toggleModal('bookmarks-modal',false);" class="btn-sub p-2.5 rounded-xl cursor-pointer text-xs">
+        <div class="font-bold text-amber-400 truncate">${escapeHtml(s.title)}</div>
+        <div class="opacity-60 truncate text-[11px]">${escapeHtml((s.messages[idx].text||'').substring(0,90))}</div>
+      </div>`;
+    }).join('') || '<p class="text-xs opacity-50 p-2">Chưa có tin nhắn nào được đánh dấu.</p>';
+  }
+  toggleModal('bookmarks-modal', true);
+}
+
+/* ============ QUOTE MESSAGE ============ */
+function quoteMessage(idx){
+  const s = getCurrentSession();
+  const text = s.messages[idx].text || '';
+  const quoted = text.split('\n').map(l=>'> '+l).join('\n');
+  const input = document.getElementById('chat-input');
+  input.value = quoted + '\n\n';
+  input.focus(); autoResize(input); saveDraft();
+  scrollChatBottom();
+  document.querySelector('.mt-2.flex.flex-col.input-cyber')?.scrollIntoView?.({behavior:'smooth', block:'nearest'});
+}
+
+/* ============ BULK SELECT MODE ============ */
+function toggleSelectMode(){
+  selectMode = !selectMode;
+  selectedMessages = [];
+  document.getElementById('chat-messages').classList.toggle('select-mode', selectMode);
+  document.getElementById('select-mode-btn').classList.toggle('text-primary-400', selectMode);
+  updateBulkActionBar();
+}
+function toggleMsgSelect(idx){
+  const pos = selectedMessages.indexOf(idx);
+  if(pos>=0) selectedMessages.splice(pos,1); else selectedMessages.push(idx);
+  updateBulkActionBar();
+}
+function updateBulkActionBar(){
+  const bar = document.getElementById('bulk-action-bar');
+  const show = selectMode && selectedMessages.length>0;
+  bar.classList.toggle('hidden', !show);
+  bar.classList.toggle('flex', show);
+  document.getElementById('bulk-select-count').innerText = `${selectedMessages.length} tin nhắn đã chọn`;
+}
+function bulkCopySelected(){
+  const s = getCurrentSession();
+  const text = [...selectedMessages].sort((a,b)=>a-b).map(i=>`[${s.messages[i].role==='user'?'BẠN':'AI'}] ${s.messages[i].text}`).join('\n\n');
+  navigator.clipboard.writeText(text);
+  showToast("Đã sao chép các tin nhắn đã chọn!","success");
+}
+function bulkExportSelected(){
+  const s = getCurrentSession();
+  const text = [...selectedMessages].sort((a,b)=>a-b).map(i=>`[${s.messages[i].role==='user'?'BẠN':'AI'}] ${s.messages[i].text}`).join('\n\n');
+  downloadFile(text, `tin_nhan_da_chon_${Date.now()}.txt`, 'text/plain');
+  showToast("Đã xuất file!","success");
+}
+async function bulkDeleteSelected(){
+  const ok = await askConfirm(`Xóa ${selectedMessages.length} tin nhắn đã chọn?`);
+  if(!ok) return;
+  const s = getCurrentSession();
+  [...selectedMessages].sort((a,b)=>b-a).forEach(i=>s.messages.splice(i,1));
+  selectedMessages = [];
+  updateBulkActionBar();
+  saveAndRenderChat();
+  showToast("Đã xóa các tin nhắn đã chọn!","success");
+}
+
+/* ============ AUTO-SCROLL TOGGLE ============ */
+function toggleAutoScroll(){
+  const off = localStorage.getItem('bedrock_autoscroll') === 'off';
+  localStorage.setItem('bedrock_autoscroll', off ? 'on' : 'off');
+  document.getElementById('autoscroll-toggle-btn').innerText = off ? 'Bật' : 'Tắt';
+}
+function isAutoScrollEnabled(){ return localStorage.getItem('bedrock_autoscroll') !== 'off'; }
+
+/* ============ ECONOMY / SHOP ============ */
+function updateEconomyUI(){
+  document.getElementById('user-coin-display').innerText = userCoins;
+  const bal = document.getElementById('shop-coin-balance'); if(bal) bal.innerText = `${userCoins} Coins`;
+  localStorage.setItem('bedrock_user_coins', userCoins);
+  localStorage.setItem('bedrock_unlocked_upgrades', JSON.stringify(unlockedUpgrades));
+
+  const buffList = document.getElementById('active-buffs-list');
+  buffList.innerHTML = unlockedUpgrades.length===0
+    ? `<span class="text-[10px] px-2 py-1 rounded-lg bg-white/5 border border-white/10 opacity-60">Chưa có</span>`
+    : unlockedUpgrades.map(id=>{ const u=UPGRADES.find(x=>x.id===id); return `<span class="text-[10px] px-2 py-1 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold">${u?u.name:id}</span>`; }).join('');
+  checkAchievements();
+}
+function renderShop(){
+  document.getElementById('shop-upgrade-list').innerHTML = UPGRADES.map((u,i)=>`
+    <div class="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/10">
+      <div class="flex flex-col space-y-1 pr-2">
+        <span class="font-bold text-primary-400">${u.name}</span>
+        <span class="text-[10px] opacity-70">${u.desc}</span>
+      </div>
+      <button id="btn-upgrade-${i}" onclick="buyUpgrade('${u.id}',${u.cost})" class="${unlockedUpgrades.includes(u.id)?'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 cursor-not-allowed':'btn-cyber'} px-3 py-2 rounded-xl text-[11px] font-bold shrink-0" ${unlockedUpgrades.includes(u.id)?'disabled':''}>${unlockedUpgrades.includes(u.id)?'Đã Mở':u.cost+' Coins'}</button>
+    </div>`).join('');
+  renderAchievements();
+  renderStreakBar();
+  updateLinkTaskUI();
+}
+function buyUpgrade(type,cost){
+  if(unlockedUpgrades.includes(type)) return;
+  if(userCoins<cost){ showToast("Không đủ Coin!","error"); return; }
+  userCoins-=cost; unlockedUpgrades.push(type);
+  updateEconomyUI(); renderShop();
+  showToast("Nâng cấp thành công!","success");
+}
+/* ============ DAILY STREAK CHECK-IN ============ */
+const STREAK_REWARDS = [50,60,75,90,110,130,150];
+function getStreakData(){
+  return JSON.parse(localStorage.getItem('bedrock_streak_data') || '{"count":0,"lastDate":null}');
+}
+function renderStreakBar(){
+  const data = getStreakData();
+  const today = new Date().toDateString();
+  const claimedToday = data.lastDate === today;
+  const filledDays = data.count===0 ? 0 : (((data.count-1) % 7) + 1);
+  document.getElementById('streak-count-label').innerText = `Chuỗi: ${data.count} ngày`;
+  document.getElementById('streak-days-bar').innerHTML = STREAK_REWARDS.map((r,i)=>{
+    const done = i < filledDays;
+    const isToday = !claimedToday && i === filledDays;
+    return `<div class="flex flex-col items-center gap-0.5 p-1.5 rounded-lg text-[9px] ${done?'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30':isToday?'bg-amber-500/20 text-amber-400 border border-amber-500/40 animate-pulse':'bg-white/5 opacity-40 border border-white/10'}">
+      <span>N${i+1}</span><span>+${r}</span>
+    </div>`;
+  }).join('');
+  const btn = document.getElementById('daily-bonus-btn');
+  if(claimedToday){ btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-check"></i> Đã Điểm Danh Hôm Nay'; btn.classList.add('opacity-50'); }
+  else { btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-gift"></i> Điểm Danh Nhận Coin'; btn.classList.remove('opacity-50'); }
+}
+function claimDailyBonus(){
+  const data = getStreakData();
+  const today = new Date().toDateString();
+  const yesterday = new Date(Date.now()-86400000).toDateString();
+  if(data.lastDate===today){ showToast("Bạn đã điểm danh hôm nay rồi!","error"); return; }
+  data.count = (data.lastDate===yesterday) ? data.count+1 : 1;
+  data.lastDate = today;
+  const reward = STREAK_REWARDS[(data.count-1) % 7];
+  userCoins += reward;
+  localStorage.setItem('bedrock_streak_data', JSON.stringify(data));
+  localStorage.setItem('bedrock_last_bonus', today);
+  updateEconomyUI(); renderStreakBar();
+  showToast(`+${reward} Coins! Chuỗi điểm danh: ${data.count} ngày`,"success");
+}
+
+/* ============ VƯỢT LINK NHẬN COIN ============ */
+const LINK_TASK_URL = 'https://www.anthropic.com';
+const LINK_TASK_REWARD = 40;
+const LINK_TASK_MAX_PER_DAY = 3;
+function getLinkTaskData(){
+  const today = new Date().toDateString();
+  let data = JSON.parse(localStorage.getItem('bedrock_link_task') || '{"date":"","count":0}');
+  if(data.date !== today){ data = {date:today, count:0}; localStorage.setItem('bedrock_link_task', JSON.stringify(data)); }
+  return data;
+}
+function updateLinkTaskUI(){
+  const data = getLinkTaskData();
+  const remaining = Math.max(0, LINK_TASK_MAX_PER_DAY - data.count);
+  document.getElementById('link-task-remaining').innerText = `${remaining} lượt/ngày`;
+  const btn = document.getElementById('link-task-btn');
+  if(remaining<=0){ btn.disabled=true; btn.classList.add('opacity-50'); btn.innerHTML='<i class="fa-solid fa-check"></i> Đã Hết Lượt Hôm Nay'; }
+  else { btn.disabled=false; btn.classList.remove('opacity-50'); btn.innerHTML='<i class="fa-solid fa-arrow-up-right-from-square"></i> Vượt Link Ngay'; }
+}
+function startLinkTask(){
+  const data = getLinkTaskData();
+  if(data.count >= LINK_TASK_MAX_PER_DAY){ showToast("Bạn đã hết lượt vượt link hôm nay!","error"); return; }
+  window.open(LINK_TASK_URL, '_blank');
+  const btn = document.getElementById('link-task-btn');
+  btn.disabled = true;
+  let sec = 12;
+  btn.innerHTML = `<i class="fa-solid fa-hourglass-half"></i> Đợi ${sec}s...`;
+  const timer = setInterval(()=>{
+    sec--;
+    if(sec<=0){
+      clearInterval(timer);
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Xác Nhận Nhận Coin';
+      btn.onclick = confirmLinkTask;
+    } else {
+      btn.innerHTML = `<i class="fa-solid fa-hourglass-half"></i> Đợi ${sec}s...`;
+    }
+  }, 1000);
+}
+function confirmLinkTask(){
+  const data = getLinkTaskData();
+  data.count++;
+  localStorage.setItem('bedrock_link_task', JSON.stringify(data));
+  userCoins += LINK_TASK_REWARD;
+  updateEconomyUI();
+  document.getElementById('link-task-btn').onclick = startLinkTask;
+  updateLinkTaskUI();
+  showToast(`+${LINK_TASK_REWARD} Coins từ vượt link!`,"success");
+}
+
+/* ============ NHẬP MÃ QUÀ TẶNG ============ */
+const REDEEM_CODES = {
+  'WELCOME100': 100,
+  'BEDROCK2026': 150,
+  'FREECOIN50': 50,
+  'STUDIOVIP': 300,
+  'CYBERPUNK': 200,
+};
+function getUsedCodes(){ return JSON.parse(localStorage.getItem('bedrock_used_codes') || '[]'); }
+function redeemCode(){
+  const input = document.getElementById('redeem-code-input');
+  const code = input.value.trim().toUpperCase();
+  if(!code){ showToast("Nhập mã trước đã!","error"); return; }
+  const used = getUsedCodes();
+  if(used.includes(code)){ showToast("Mã này đã được sử dụng rồi!","error"); return; }
+  if(!REDEEM_CODES[code]){ showToast("Mã không hợp lệ hoặc đã hết hạn!","error"); return; }
+  const reward = REDEEM_CODES[code];
+  userCoins += reward;
+  used.push(code);
+  localStorage.setItem('bedrock_used_codes', JSON.stringify(used));
+  updateEconomyUI();
+  input.value='';
+  showToast(`🎉 Đổi mã thành công! +${reward} Coins`,"success");
+}
+
+function renderAchievements(){
+  document.getElementById('achievements-list').innerHTML = ACHIEVEMENTS.map(a=>{
+    const unlocked = a.cond({...stats, userCoins, unlockedUpgrades});
+    return `<div title="${a.name}" class="flex flex-col items-center gap-1 p-2 rounded-xl ${unlocked?'bg-amber-500/20 text-amber-400 border border-amber-500/40':'bg-white/5 opacity-30 border border-white/10'}">
+      <i class="fa-solid ${a.icon}"></i><span class="text-[8px] text-center leading-tight">${a.name}</span>
+    </div>`;
+  }).join('');
+}
+function checkAchievements(){ renderAchievements(); }
+function saveStats(){ localStorage.setItem('bedrock_stats', JSON.stringify(stats)); }
+function updateUsageStats(){
+  const s = getCurrentSession();
+  const approxTokens = s.messages.reduce((a,m)=>a+Math.ceil((m.text||'').length/4),0);
+  document.getElementById('usage-stats').innerHTML = `
+    <div>💬 Tin nhắn phiên này: <b class="text-primary-400">${s.messages.length}</b></div>
+    <div>🔢 Tokens ước tính: <b class="text-primary-400">${approxTokens}</b></div>
+    <div>📚 Tổng số phiên: <b class="text-primary-400">${chatSessions.length}</b></div>
+    <div>⭐ Tổng tin nhắn đã gửi: <b class="text-primary-400">${stats.totalMessages}</b></div>`;
+}
+
+/* ============ EXPORT / IMPORT ============ */
+function exportCurrentChat(fmt){
+  const s = getCurrentSession();
+  let content, mime, ext;
+  if(fmt==='txt'){ content = s.messages.map(m=>`[${m.role.toUpperCase()}] ${m.text}`).join('\n\n'); mime='text/plain'; ext='txt'; }
+  else { content = JSON.stringify(s, null, 2); mime='application/json'; ext='json'; }
+  downloadFile(content, `${s.title}.${ext}`, mime);
+  stats.exportCount++; saveStats(); checkAchievements();
+}
+function exportAllData(){
+  const data = { chatSessions, userCoins, unlockedUpgrades, bookmarks, stats, exportedAt: new Date().toISOString() };
+  downloadFile(JSON.stringify(data,null,2), `bedrock_backup_${Date.now()}.json`, 'application/json');
+  stats.exportCount++; saveStats(); showToast("Đã xuất backup!","success");
+}
+function importAllData(event){
+  const file = event.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    try{
+      const data = JSON.parse(e.target.result);
+      if(data.chatSessions) chatSessions = data.chatSessions;
+      if(data.userCoins!==undefined) userCoins = data.userCoins;
+      if(data.unlockedUpgrades) unlockedUpgrades = data.unlockedUpgrades;
+      if(data.bookmarks) bookmarks = data.bookmarks;
+      if(data.stats) stats = data.stats;
+      currentSessionId = chatSessions[0].id;
+      saveAndRenderChat(); updateEconomyUI();
+      showToast("Đã nhập backup thành công!","success");
+    }catch(err){ showToast("File backup không hợp lệ!","error"); }
+  };
+  reader.readAsText(file);
+}
+function guessFileTypeFromText(text){
+  const t = text.trim();
+  if(/^<!DOCTYPE html|^<html/i.test(t)) return {ext:'html', mime:'text/html'};
+  if(/^\s*[\{\[]/.test(t) && (()=>{ try{ JSON.parse(t); return true; }catch(e){ return false; } })()) return {ext:'json', mime:'application/json'};
+  if(/^import |^from .+ import |def \w+\(|print\(/m.test(t) && /:\s*$/m.test(t)) return {ext:'py', mime:'text/plain'};
+  if(/^\s*(function|const|let|var)\s+\w+|=>|document\.|console\.log/.test(t)) return {ext:'js', mime:'text/javascript'};
+  if(/^#{1,6}\s|^\*\s|^-\s|\*\*.+\*\*/m.test(t)) return {ext:'md', mime:'text/markdown'};
+  return {ext:'txt', mime:'text/plain'};
+}
+function extractFirstCodeBlock(text){
+  const m = /```(\w+)?\n([\s\S]*?)```/.exec(text);
+  if(!m) return null;
+  const lang = (m[1]||'').toLowerCase();
+  return { code: m[2], ext: EXT_BY_LANG[lang] || lang || 'txt' };
+}
+function createFileFromMessage(idx){
+  const s = getCurrentSession();
+  const msg = s.messages[idx];
+  if(!msg || !msg.text || !msg.text.trim()){ showToast("Không có nội dung để tạo file","error"); return; }
+  const block = extractFirstCodeBlock(msg.text);
+  let content, ext, mime;
+  if(block){ content = block.code; ext = block.ext; mime='text/plain'; }
+  else { const guess = guessFileTypeFromText(msg.text); content = msg.text; ext = guess.ext; mime = guess.mime; }
+  const base = (s.title || 'ket_qua').replace(/[^\p{L}\p{N}_\- ]/gu,'').trim().replace(/\s+/g,'_').substring(0,40) || 'ket_qua';
+  const filename = `${base}.${ext}`;
+  downloadFile(content, filename, mime);
+  showToast(`Đã tạo file: ${filename}`, 'success');
+  stats.exportCount++; saveStats(); checkAchievements();
+}
+function downloadFile(content, filename, mime){
+  const blob = new Blob([content], {type:mime});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ============ SUMMARIZE ============ */
+async function summarizeChat(){
+  const s = getCurrentSession();
+  if(s.messages.length<2){ showToast("Chưa đủ nội dung để tóm tắt","error"); return; }
+  const input = document.getElementById('chat-input');
+  input.value = "Hãy tóm tắt ngắn gọn toàn bộ cuộc hội thoại ở trên thành các gạch đầu dòng chính.";
+  await sendChatMessage();
+}
+
+function savePinnedContext(){
+  const s = getCurrentSession();
+  s.pinnedContext = document.getElementById('pinned-context-input').value;
+  localStorage.setItem('bedrock_sessions_v8', JSON.stringify(chatSessions));
+}
+
+async function autoGenerateTitle(){
+  const s = getCurrentSession();
+  if(s.messages.filter(m=>m.role==='user').length===0){ showToast("Cần ít nhất 1 tin nhắn để đặt tên!","error"); return; }
+  showToast("AI đang nghĩ tên phiên...", "info");
+  const provider = document.getElementById('api-provider').value;
+  const prov = providerData[provider];
+  const apiKey = document.getElementById('api-key-input').value.trim() || localStorage.getItem(`key_${provider}`);
+  const modelId = document.getElementById('model-select').value;
+  const conv = s.messages.slice(0,6).map(m=>`${m.role}: ${m.text}`).join('\n').substring(0,1500);
+  try{
+    let endpoint = provider==='custom' ? (localStorage.getItem('custom_endpoint')||'') : prov.endpoint;
+    let headers = {"Content-Type":"application/json"}; let body; let reply;
+    const prompt = `Đọc đoạn hội thoại sau và đặt cho nó 1 tiêu đề ngắn gọn (tối đa 6 từ), không dùng dấu ngoặc kép, chỉ trả về đúng tiêu đề:\n${conv}`;
+    if(prov.format==='gemini'){
+      endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
+      body = { contents:[{role:'user',parts:[{text:prompt}]}] };
+      const res = await fetch(endpoint,{method:'POST',headers,body:JSON.stringify(body)});
+      const data = await res.json(); reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    } else if(prov.format==='anthropic'){
+      headers['x-api-key']=apiKey; headers['anthropic-version']='2023-06-01'; headers['anthropic-dangerous-direct-browser-access']='true';
+      body = { model:modelId, max_tokens:30, messages:[{role:'user',content:prompt}] };
+      const res = await fetch(endpoint,{method:'POST',headers,body:JSON.stringify(body)});
+      const data = await res.json(); reply = data.content?.[0]?.text;
+    } else {
+      if(!prov.noKey) headers['Authorization'] = `Bearer ${apiKey}`;
+      body = { model:modelId, max_tokens:30, messages:[{role:'user',content:prompt}] };
+      const res = await fetch(endpoint,{method:'POST',headers,body:JSON.stringify(body)});
+      const data = await res.json(); reply = data.choices?.[0]?.message?.content;
+    }
+    if(reply){ s.title = reply.trim().replace(/^["'.]+|["'.]+$/g,'').substring(0,40); saveAndRenderChat(); showToast("Đã đặt tên phiên!","success"); }
+    else showToast("Không nhận được tên từ AI","error");
+  }catch(e){ showToast(explainApiError(e, provider),"error"); }
+}
+
+function copyWholeConversation(){
+  const s = getCurrentSession();
+  const text = s.messages.map(m=>`[${m.role==='user'?'BẠN':'AI'}] ${m.text}`).join('\n\n');
+  navigator.clipboard.writeText(text);
+  showToast("Đã sao chép toàn bộ hội thoại!","success");
+}
+
+function continueMessage(idx){
+  const s = getCurrentSession();
+  s.messages.push({role:'user', text:'Tiếp tục câu trả lời phía trên, không lặp lại phần đã nói.', ts:Date.now()});
+  saveAndRenderChat();
+  callAI();
+}
+
+/* ============ PROVIDER CONFIG ============ */
+function switchProvider(){
+  const p = document.getElementById('api-provider').value;
+  const prov = providerData[p];
+  document.getElementById('api-key-input').value = localStorage.getItem(`key_${p}`) || '';
+  document.getElementById('api-key-input').classList.toggle('hidden', !!prov.noKey);
+  document.getElementById('free-provider-note').classList.toggle('hidden', !prov.noKey);
+  document.getElementById('custom-endpoint-input').classList.toggle('hidden', p!=='custom');
+  if(p==='custom') document.getElementById('custom-endpoint-input').value = localStorage.getItem('custom_endpoint')||'';
+  const sel = document.getElementById('model-select'); sel.innerHTML='';
+  prov.models.forEach(m=>sel.add(new Option(m.name, m.id)));
+}
+function saveApiConfig(){
+  const p = document.getElementById('api-provider').value;
+  localStorage.setItem(`key_${p}`, document.getElementById('api-key-input').value.trim());
+  if(p==='custom') localStorage.setItem('custom_endpoint', document.getElementById('custom-endpoint-input').value.trim());
+  showToast("Đã lưu API Key!","success");
+}
+
+/* ============ CHAT SEND / STREAM ============ */
+function autosetTitle(session, text){
+  if(session.messages.filter(m=>m.role==='user').length===1 && session.title==='Phiên chat mới'){
+    session.title = text.substring(0,22) + (text.length>22?'...':'');
+  }
+}
+
+async function sendChatMessage(){
+  const provider = document.getElementById('api-provider').value;
+  const prov = providerData[provider];
+  const apiKey = document.getElementById('api-key-input').value.trim() || localStorage.getItem(`key_${provider}`);
+  if(!apiKey && !prov.noKey){ showToast("Chưa nhập API Key!","error"); return; }
+
+  const input = document.getElementById('chat-input');
+  let text = input.value.trim();
+  if(!text && currentAttachedFiles.length===0) return;
+
+  if(currentAttachedFiles.length>0){
+    const filesText = currentAttachedFiles.filter(f=>!f.isImg).map(f=>`[Tệp: ${f.name}]\n\`\`\`\n${f.content}\n\`\`\``).join('\n\n');
+    if(filesText) text = `${filesText}\n\nYêu cầu: ${text}`;
+    currentAttachedFiles = []; renderAttachedFiles();
+  }
+
+  const session = getCurrentSession();
+  autosetTitle(session, text);
+  session.messages.push({role:'user', text, ts:Date.now()});
+  input.value=''; autoResize(input); localStorage.removeItem('bedrock_draft_'+currentSessionId);
+
+  userCoins += 10; stats.totalMessages++; saveStats(); updateEconomyUI();
+  saveAndRenderChat();
+  await callAI();
+}
+
+function explainApiError(err, provider){
+  const status = err?.status;
+  const msg = (err?.message || '').toLowerCase();
+  const provName = providerData[provider]?.name || provider;
+
+  if(err?.name==='TypeError' || msg.includes('failed to fetch') || msg.includes('networkerror') || msg.includes('load failed')){
+    return `🔌 Không thể kết nối tới máy chủ AI (${provName}). Có thể do: mất mạng, endpoint sai, hoặc trình duyệt chặn CORS. Kiểm tra lại kết nối Internet và địa chỉ Endpoint (nếu dùng provider Tùy Chỉnh).`;
+  }
+  if(status===401 || msg.includes('invalid api key') || msg.includes('incorrect api key') || msg.includes('unauthorized')){
+    return `🔑 API Key không hợp lệ hoặc sai. Vào Cài Đặt AI Engine, kiểm tra lại đã dán đúng khóa API cho ${provName} chưa (không thừa dấu cách, không thiếu ký tự).`;
+  }
+  if(status===403){
+    return `🚫 Bị từ chối truy cập (403). Tài khoản API của bạn có thể chưa được cấp quyền dùng model này, hoặc bị chặn theo khu vực.`;
+  }
+  if(status===404){
+    return `❓ Không tìm thấy model hoặc endpoint (404). Kiểm tra lại tên model đã chọn có còn được ${provName} hỗ trợ không.`;
+  }
+  if(status===429 || msg.includes('rate limit') || msg.includes('quota') || msg.includes('too many requests')){
+    return `⏳ Đã vượt giới hạn tốc độ / hết hạn ngạch (429) của ${provName}. Hãy đợi một lát rồi thử lại, hoặc đổi sang provider khác (vd: bản Miễn Phí).`;
+  }
+  if(status===402 || msg.includes('insufficient') || msg.includes('billing') || msg.includes('credit')){
+    return `💳 Tài khoản ${provName} không đủ số dư/hạn mức (402). Cần nạp thêm hoặc kiểm tra billing trên trang nhà cung cấp.`;
+  }
+  if(status===400 || msg.includes('bad request') || msg.includes('invalid')){
+    return `⚠️ Yêu cầu không hợp lệ (400) từ ${provName}: ${err.message}. Có thể do cấu hình max_tokens/temperature sai, hoặc model không hỗ trợ tính năng đang bật (vd JSON Mode).`;
+  }
+  if(status>=500){
+    return `🛠️ Máy chủ ${provName} đang gặp sự cố (lỗi ${status}). Không phải lỗi từ phía bạn — hãy thử lại sau ít phút.`;
+  }
+  if(msg.includes('abort')){
+    return `⏹️ Yêu cầu đã bị hủy.`;
+  }
+  return `❌ Lỗi không xác định khi gọi ${provName}: ${err?.message || 'Không rõ nguyên nhân'}.`;
+}
+
+async function callAI(retries=2, forceProvider=null){
+  const provider = forceProvider || document.getElementById('api-provider').value;
+  const prov = providerData[provider];
+  const apiKey = document.getElementById('api-key-input').value.trim() || localStorage.getItem(`key_${provider}`);
+  const modelId = forceProvider ? prov.models[0].id : document.getElementById('model-select').value;
+  const session = getCurrentSession();
+  const temperature = parseFloat(document.getElementById('temp-slider').value);
+  const max_tokens = parseInt(document.getElementById('maxtok-slider').value);
+  const top_p = parseFloat(document.getElementById('topp-slider').value);
+  const useStream = document.getElementById('stream-toggle').checked && prov.format==='openai';
+  const jsonMode = document.getElementById('json-mode-toggle').checked;
+  const ctxLimit = parseInt(document.getElementById('ctx-limit-slider').value);
+  const forceLang = document.getElementById('force-lang-select').value;
+  const cotOn = document.getElementById('cot-toggle').checked;
+  const pinnedContext = (document.getElementById('pinned-context-input').value || '').trim();
+  const fallbackOn = document.getElementById('fallback-toggle').checked;
+
+  let sysPrompt = document.getElementById('global-sys-prompt').value;
+  sysPrompt += " Khi trả lời có mã nguồn/code, luôn đặt trong khối ```ten_ngon_ngu ... ``` với tên ngôn ngữ rõ ràng (vd: html, javascript, python, css, json).";
+  UPGRADES.forEach(u=>{ if(unlockedUpgrades.includes(u.id)) sysPrompt += u.sys; });
+  if(forceLang==='vi') sysPrompt += " Luôn luôn trả lời bằng Tiếng Việt, bất kể người dùng dùng ngôn ngữ nào.";
+  if(forceLang==='en') sysPrompt += " Always answer in English, regardless of the language the user writes in.";
+  if(cotOn) sysPrompt += " Trước khi đưa ra câu trả lời cuối cùng, hãy trình bày ngắn gọn từng bước suy luận (chain-of-thought), sau đó nêu kết luận rõ ràng.";
+  if(pinnedContext) sysPrompt += ` Bối cảnh cố định của cuộc trò chuyện này (luôn ghi nhớ): ${pinnedContext}`;
+
+  document.getElementById('typing-indicator').classList.remove('hidden');
+  document.getElementById('typing-indicator').classList.add('flex');
+  document.getElementById('send-btn').disabled = true;
+  abortController = new AbortController();
+
+  const contextMessages = session.messages.slice(0, -1).slice(-ctxLimit).concat(session.messages.slice(-1));
+
+  try{
+    let endpoint = provider==='custom' ? (localStorage.getItem('custom_endpoint')||'') : prov.endpoint;
+    let headers = {"Content-Type":"application/json"};
+    let body;
+
+    if(prov.format==='gemini'){
+      endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
+      body = { contents: contextMessages.map(m=>({role: m.role==='assistant'?'model':'user', parts:[{text:m.text}]})),
+               generationConfig:{ temperature, maxOutputTokens:max_tokens, topP:top_p } };
+    } else if(prov.format==='anthropic'){
+      headers['x-api-key']=apiKey; headers['anthropic-version']='2023-06-01'; headers['anthropic-dangerous-direct-browser-access']='true';
+      body = { model:modelId, max_tokens, temperature, system:sysPrompt,
+               messages: contextMessages.map(m=>({role:m.role==='assistant'?'assistant':'user', content:m.text})) };
+    } else {
+      if(!prov.noKey) headers['Authorization'] = `Bearer ${apiKey}`;
+      body = { model:modelId, temperature, max_tokens, top_p, stream:useStream,
+               messages:[{role:'system',content:sysPrompt}, ...contextMessages.map(m=>({role:m.role,content:m.text}))] };
+      if(jsonMode) body.response_format = {type:'json_object'};
+    }
+
+    session.messages.push({role:'assistant', text:'', ts:Date.now()});
+    saveAndRenderChat();
+
+    let res = await fetch(endpoint, {method:'POST', headers, body:JSON.stringify(body), signal:abortController.signal});
+    if(!res.ok){
+      let detail = '';
+      try{ const errData = await res.clone().json(); detail = errData.error?.message || errData.message || JSON.stringify(errData).substring(0,200); }catch(e){ try{ detail = (await res.text()).substring(0,200); }catch(e2){} }
+      throw Object.assign(new Error(detail || `HTTP ${res.status}`), { status: res.status });
+    }
+
+    if(useStream && res.body){
+      const reader = res.body.getReader(); const decoder = new TextDecoder(); let acc='';
+      while(true){
+        const {done, value} = await reader.read();
+        if(done) break;
+        const chunk = decoder.decode(value, {stream:true});
+        chunk.split('\n').forEach(line=>{
+          line = line.replace('data: ','').trim();
+          if(!line || line==='[DONE]') return;
+          try{
+            const json = JSON.parse(line);
+            const delta = json.choices?.[0]?.delta?.content;
+            if(delta){ acc += delta; session.messages[session.messages.length-1].text = acc; renderStreamingLast(session); }
+          }catch(e){}
+        });
+      }
+      session.messages[session.messages.length-1].text = acc || '(Không có phản hồi)';
+      stats.streamCount++; saveStats();
+    } else {
+      let data = await res.json();
+      let reply = prov.format==='gemini' ? data.candidates?.[0]?.content?.parts?.[0]?.text
+                 : prov.format==='anthropic' ? data.content?.[0]?.text
+                 : data.choices?.[0]?.message?.content;
+      session.messages[session.messages.length-1].text = reply || JSON.stringify(data).substring(0,300);
+    }
+
+    userCoins += 15; saveAndRenderChat(); updateEconomyUI();
+    if(document.hidden) startTabFlash();
+  }catch(err){
+    if(err.name==='AbortError'){
+      session.messages[session.messages.length-1].text = "(Đã dừng tạo phản hồi)";
+    } else if(retries>0){
+      document.getElementById('typing-indicator').classList.add('hidden');
+      await new Promise(r=>setTimeout(r, 800));
+      session.messages.pop();
+      await callAI(retries-1);
+      return;
+    } else if(fallbackOn && provider!=='free' && !forceProvider){
+      document.getElementById('typing-indicator').classList.add('hidden');
+      session.messages.pop();
+      showToast("Provider chính lỗi, đang chuyển sang bản Miễn Phí...","info");
+      await callAI(1, 'free');
+      return;
+    } else {
+      const friendlyMsg = explainApiError(err, provider);
+      session.messages[session.messages.length-1].text = friendlyMsg;
+      showToast("Lỗi gọi API — xem chi tiết trong khung chat","error");
+    }
+    saveAndRenderChat();
+  } finally {
+    document.getElementById('typing-indicator').classList.add('hidden');
+    document.getElementById('typing-indicator').classList.remove('flex');
+    document.getElementById('send-btn').disabled = false;
+  }
+}
+function renderStreamingLast(session){
+  const container = document.getElementById('chat-messages');
+  const rows = container.querySelectorAll('.msg-row');
+  const last = rows[rows.length-1];
+  if(last){ const bubble = last.querySelector('.msg-prose'); if(bubble) bubble.innerHTML = renderMarkdown(session.messages[session.messages.length-1].text); }
+  if(isAutoScrollEnabled()) scrollChatBottom();
+}
+
+/* ============ KEYBOARD SHORTCUTS ============ */
+document.addEventListener('keydown', e=>{
+  if((e.ctrlKey||e.metaKey) && e.key==='k'){ e.preventDefault(); createNewChatSession(); }
+  if((e.ctrlKey||e.metaKey) && e.key==='f'){ e.preventDefault(); toggleModal('search-modal',true); document.getElementById('global-search-input').focus(); }
+  if((e.ctrlKey||e.metaKey) && e.key==='/'){ e.preventDefault(); toggleModal('settings-modal',true); }
+  if((e.ctrlKey||e.metaKey) && e.key==='p'){ e.preventDefault(); toggleModal('command-palette-modal',true); document.getElementById('command-palette-input').focus(); renderCommandPalette(); }
+  if(e.key==='Escape'){ ['settings-modal','shop-modal','search-modal','confirm-modal','command-palette-modal','bookmarks-modal'].forEach(id=>toggleModal(id,false)); document.getElementById('emoji-picker').classList.add('hidden'); const mp=document.getElementById('music-panel'); if(!mp.classList.contains('hidden')) toggleMusicPanel(); }
+});
+
+/* ============ INIT ============ */
+window.onload = ()=>{
+  document.getElementById('chat-input').addEventListener('keydown', function(e){
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendChatMessage(); }
+  });
+  switchProvider();
+  setCustomTheme(localStorage.getItem('bedrock_custom_color_v8') || '#8b5cf6');
+  if(localStorage.getItem('bedrock_dark')==='off'){ document.body.classList.remove('dark'); document.documentElement.classList.remove('dark'); document.getElementById('dark-toggle-btn').innerText='Sáng'; }
+  if(localStorage.getItem('bedrock_density')==='compact'){ document.body.classList.add('density-compact'); document.getElementById('density-toggle-btn').innerText='Gọn'; }
+  if(localStorage.getItem('bedrock_sound')==='off') document.getElementById('sound-toggle-btn').innerText='Tắt';
+  if(localStorage.getItem('bedrock_autoscroll')==='off') document.getElementById('autoscroll-toggle-btn').innerText='Tắt';
+  adjustFontScale(0);
+  document.getElementById('particles-toggle-btn').innerText = particlesEnabled?'Bật':'Tắt';
+
+  /* restore background */
+  const savedBgImg = localStorage.getItem('bedrock_bg_image');
+  const savedWallpaperId = localStorage.getItem('bedrock_wallpaper_id');
+  if(savedBgImg){ document.getElementById('bg-layer').style.background = `url('${savedBgImg}') center/cover no-repeat`; }
+  else if(savedWallpaperId && savedWallpaperId!=='none'){ const w=PRESET_WALLPAPERS.find(x=>x.id===savedWallpaperId); if(w){ document.getElementById('bg-layer').style.background=w.css; if(w.size) document.getElementById('bg-layer').style.backgroundSize=w.size.split(',')[0]; } }
+  renderWallpaperGallery();
+  const savedBgOp = localStorage.getItem('bedrock_bg_opacity'); if(savedBgOp!==null){ document.documentElement.style.setProperty('--bg-overlay-opacity', savedBgOp); document.getElementById('bg-opacity-slider').value=savedBgOp; document.getElementById('bg-opacity-val').innerText=Math.round(savedBgOp*100)+'%'; }
+
+  /* restore bubble customization */
+  const bu = localStorage.getItem('bedrock_bubble_user'); if(bu){ document.documentElement.style.setProperty('--bubble-user-color', bu); document.getElementById('bubble-user-color-picker').value=bu; }
+  const ba = localStorage.getItem('bedrock_bubble_ai'); if(ba){ document.documentElement.style.setProperty('--bubble-ai-color', ba); document.getElementById('bubble-ai-color-picker').value=ba; }
+  const br = localStorage.getItem('bedrock_bubble_radius'); if(br){ document.documentElement.style.setProperty('--bubble-radius', br+'px'); document.getElementById('bubble-radius-slider').value=br; document.getElementById('bubble-radius-val').innerText=br+'px'; }
+  const bw = localStorage.getItem('bedrock_bubble_width'); if(bw){ document.documentElement.style.setProperty('--bubble-maxw', bw+'%'); document.getElementById('bubble-width-slider').value=bw; document.getElementById('bubble-width-val').innerText=bw+'%'; }
+  if(localStorage.getItem('bedrock_bubble_tail')==='off'){ document.body.classList.add('no-bubble-tail'); document.getElementById('bubble-tail-btn').innerText='Không'; }
+  const cf = localStorage.getItem('bedrock_chat_font'); if(cf){ document.documentElement.style.setProperty('--chat-font', cf); document.getElementById('font-family-select').value=cf; }
+  if(localStorage.getItem('bedrock_avatars')==='off'){ document.body.classList.add('avatars-hidden'); document.getElementById('avatars-toggle-btn').innerText='Ẩn'; }
+  if(localStorage.getItem('bedrock_msg_anim')==='off'){ document.body.classList.add('noanim'); document.getElementById('msg-anim-toggle-btn').innerText='Tắt'; }
+  if(localStorage.getItem('bedrock_time_format')==='12'){ document.getElementById('time-format-btn').innerText='12h'; }
+
+  renderQuickPrompts();
+  updateEconomyUI();
+  saveAndRenderChat();
+  loadDraft();
+  initParticles();
+  setInterval(()=>{
+    const sec = Math.floor((Date.now()-startTime)/1000);
+    const m = String(Math.floor(sec/60)).padStart(2,'0'); const s = String(sec%60).padStart(2,'0');
+    document.getElementById('session-stopwatch').innerText = `v8.0 // ${m}:${s}`;
+  }, 1000);
+};
+</script>
+</body>
+</html>
